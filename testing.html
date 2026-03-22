@@ -65,9 +65,7 @@
         .toolbar .sep { width: 1px; height: 20px; background: #4e5058; margin: 0 5px; align-self: center; }
 
         #editor { min-height: 200px; padding: 20px; outline: none; line-height: 1.6; background: #383a40; font-size: 15px; color: white; }
-        #editor b { font-weight: bold; }
-        #editor i { font-style: italic; }
-
+        
         .discord-preview { 
             background: #2b2d31; padding: 15px; border-radius: 8px; display: flex; gap: 14px; 
             border: 1px solid var(--border); margin-top: 10px;
@@ -135,7 +133,7 @@
                 <div class="prev-pfp" id="prevPfp"></div>
                 <div class="discord-content">
                     <div><span class="prev-name" id="prevName">Webhook</span><span class="prev-tag">APP</span></div>
-                    <div id="prevBody">...</div>
+                    <div id="prevBody" style="white-space: pre-wrap;">...</div>
                 </div>
             </div>
 
@@ -146,7 +144,7 @@
     <div id="toast"></div>
 
     <script>
-        let profiles = JSON.parse(localStorage.getItem('wh_vault_final_v5') || '[]');
+        let profiles = JSON.parse(localStorage.getItem('wh_vault_final_v6') || '[]');
 
         window.onload = () => {
             renderSidebar();
@@ -190,7 +188,7 @@
             const url = document.getElementById('webhookUrl').value;
             if(!url) return showToast("No URL!", false);
             profiles.push({ url, name: document.getElementById('botName').value, pfp: document.getElementById('botAvatar').value });
-            localStorage.setItem('wh_vault_final_v5', JSON.stringify(profiles));
+            localStorage.setItem('wh_vault_final_v6', JSON.stringify(profiles));
             renderSidebar();
             showToast("Saved!");
         }
@@ -210,7 +208,7 @@
                 };
                 icon.oncontextmenu = (e) => {
                     e.preventDefault();
-                    if(confirm("Delete?")) { profiles.splice(i, 1); localStorage.setItem('wh_vault_final_v5', JSON.stringify(profiles)); renderSidebar(); }
+                    if(confirm("Delete?")) { profiles.splice(i, 1); localStorage.setItem('wh_vault_final_v6', JSON.stringify(profiles)); renderSidebar(); }
                 };
                 container.appendChild(icon);
             });
@@ -230,17 +228,19 @@
 
             let html = document.getElementById('editor').innerHTML;
 
-            // SHRINKWRAP CLEANER: Move formatting symbols inward to touch text
-            // 1. Convert tags to markdown placeholders with inward-trimming
+            // SMART SHRINKWRAP: Moves spaces OUT of the tags so the symbols touch the letters
             let content = html
                 .replace(/<h1>\s*(.*?)\s*<\/h1>/g, "# $1\n")
                 .replace(/<h2>\s*(.*?)\s*<\/h2>/g, "## $1\n")
                 .replace(/<h3>\s*(.*?)\s*<\/h3>/g, "### $1\n")
-                .replace(/<b>\s*(.*?)\s*<\/b>|<strong>\s*(.*?)\s*<\/strong>/g, "**$1$2**")
-                .replace(/<i>\s*(.*?)\s*<\/i>|<em>\s*(.*?)\s*<\/em>/g, "*$1$2*")
-                .replace(/<u>\s*(.*?)\s*<\/u>/g, "__$1__")
-                .replace(/<s>\s*(.*?)\s*<\/s>/g, "~~$1~~")
-                .replace(/<code>\s*(.*?)\s*<\/code>/g, "`$1`")
+                // Pulls spaces outside the bold/italic markers
+                .replace(/<b>(\s*)(.*?)(\s*)<\/b>/g, "$1**$2**$3")
+                .replace(/<strong>(\s*)(.*?)(\s*)<\/strong>/g, "$1**$2**$3")
+                .replace(/<i>(\s*)(.*?)(\s*)<\/i>/g, "$1*$2*$3")
+                .replace(/<em>(\s*)(.*?)(\s*)<\/em>/g, "$1*$2*$3")
+                .replace(/<u>(\s*)(.*?)(\s*)<\/u>/g, "$1__$2__$3")
+                .replace(/<s>(\s*)(.*?)(\s*)<\/s>/g, "$1~~$2~~$3")
+                .replace(/<code>(\s*)(.*?)(\s*)<\/code>/g, "$1`$2`$3")
                 .replace(/&nbsp;/g, " ")
                 .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
                 .replace(/<br>/g, "\n")
