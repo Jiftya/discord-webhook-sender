@@ -45,73 +45,73 @@
             content: attr(data-name); position: absolute; left: 70px; top: 50%;
             transform: translateY(-50%); background: #000; color: #fff;
             padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;
-            white-space: nowrap; opacity: 0; pointer-events: none; transition: var(--transition);
+            white-space: nowrap; opacity: 0; pointer-events: none; transition: var(--transition); z-index: 100;
         }
         .profile-icon:hover::after { opacity: 1; left: 80px; }
 
         .save-btn {
             width: 48px; height: 48px; border-radius: 50%; background: var(--bg-card);
             display: flex; align-items: center; justify-content: center; font-size: 24px;
-            color: var(--success); cursor: pointer; transition: var(--transition); border: 1px solid var(--border);
+            color: var(--success); cursor: pointer; transition: var(--transition);
         }
         .save-btn:hover { background: var(--success); color: white; border-radius: 30%; }
 
-        /* Main Viewport */
-        .main { flex: 1; background: var(--bg-main); overflow-y: auto; padding: 40px 20px; }
+        /* Main Workspace */
+        .main { flex: 1; background: var(--bg-main); overflow-y: auto; padding: 30px 20px; }
         .workspace { max-width: 850px; margin: 0 auto; }
 
-        .card { background: var(--bg-card); border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid var(--border); }
-        .section-label { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; display: block; letter-spacing: 0.5px; }
+        .card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .section-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 0.5px; }
         
-        input[type="text"], input[type="url"], textarea { 
+        input[type="text"], textarea { 
             width: 100%; background: var(--bg-input); border: 1px solid transparent; color: white;
-            padding: 12px; border-radius: 6px; outline: none; margin-bottom: 16px; font-size: 14px;
+            padding: 12px; border-radius: 6px; outline: none; margin-bottom: 12px; font-size: 14px;
         }
         input:focus { border-color: var(--blurple); }
 
-        /* Toggle Switch */
-        .toggle-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; cursor: pointer; width: fit-content; }
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4e5058; transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--success); }
-        input:checked + .slider:before { transform: translateX(20px); }
+        /* Toggle */
+        .toggle-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; cursor: pointer; }
+        .switch { position: relative; width: 40px; height: 20px; background: #4e5058; border-radius: 20px; transition: .3s; }
+        .switch::before { content: ""; position: absolute; width: 14px; height: 14px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .3s; }
+        input:checked + .switch { background: var(--success); }
+        input:checked + .switch::before { transform: translateX(20px); }
 
         /* Editor */
-        .editor-wrap { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--bg-card); margin-bottom: 24px; }
-        .toolbar { background: #232428; padding: 10px; display: flex; gap: 8px; border-bottom: 1px solid var(--border); }
-        .toolbar button { background: transparent; border: none; color: var(--text-normal); cursor: pointer; font-weight: bold; padding: 4px 8px; border-radius: 4px; }
-        .toolbar button:hover { background: #4e5058; }
-        #editor { min-height: 180px; padding: 20px; outline: none; line-height: 1.6; }
+        .editor-wrap { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--bg-card); margin-bottom: 20px; }
+        .toolbar { background: #232428; padding: 8px; display: flex; gap: 4px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+        .toolbar button { background: transparent; border: none; color: var(--text-normal); cursor: pointer; padding: 6px 10px; border-radius: 4px; font-weight: bold; }
+        .toolbar button:hover { background: #4e5058; color: white; }
+        .toolbar .sep { width: 1px; height: 20px; background: #4e5058; margin: 0 5px; align-self: center; }
 
-        /* Discord Preview */
-        .preview-container { background: #2b2d31; padding: 20px; border-radius: 8px; display: flex; gap: 16px; border: 1px solid var(--border); }
-        .prev-pfp { width: 40px; height: 40px; border-radius: 50%; background: var(--blurple); flex-shrink: 0; background-size: cover; }
-        .prev-name { font-weight: 600; color: white; margin-right: 4px; }
-        .prev-tag { background: var(--blurple); font-size: 10px; padding: 1px 4px; border-radius: 3px; color: white; font-weight: bold; text-transform: uppercase; }
+        #editor { min-height: 180px; padding: 20px; outline: none; line-height: 1.6; font-size: 15px; }
+        #editor:empty:before { content: attr(placeholder); color: var(--text-muted); }
         
-        .embed-preview { 
-            margin-top: 8px; padding: 12px; background: #232428; border-radius: 4px; 
-            border-left: 4px solid var(--blurple); max-width: 520px; display: none;
-        }
+        .editor-footer { display: flex; justify-content: space-between; padding: 8px 15px; background: #232428; font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border); }
+
+        /* Attachments */
+        #attachmentList { display: flex; gap: 10px; padding: 10px; background: rgba(0,0,0,0.1); flex-wrap: wrap; }
+        .file-card { width: 70px; height: 70px; background: var(--bg-input); border-radius: 6px; position: relative; background-size: cover; background-position: center; border: 1px solid var(--border); }
+        .remove-file { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; }
+
+        /* Preview */
+        .preview-box { background: #2b2d31; padding: 16px; border-radius: 8px; display: flex; gap: 16px; border: 1px solid var(--border); }
+        .prev-pfp { width: 40px; height: 40px; border-radius: 50%; background: var(--blurple); flex-shrink: 0; background-size: cover; }
+        .bot-tag { background: var(--blurple); font-size: 10px; padding: 1px 4px; border-radius: 3px; color: white; font-weight: bold; margin-left: 5px; vertical-align: middle; }
+        
+        .embed-display { margin-top: 8px; padding: 12px; background: #232428; border-radius: 4px; border-left: 4px solid var(--blurple); max-width: 520px; display: none; }
         .embed-title { color: #00a8fc; font-weight: 700; font-size: 16px; margin-bottom: 4px; }
-        .embed-desc { font-size: 14px; color: #dbdee1; white-space: pre-wrap; }
 
-        .btn-send { 
-            width: 100%; padding: 20px; border-radius: 12px; border: none; font-weight: 800; 
-            cursor: pointer; transition: var(--transition); background: var(--blurple); color: white; font-size: 18px;
-        }
-        .btn-send:hover { background: var(--blurple-hover); transform: translateY(-2px); }
+        .btn-send { width: 100%; padding: 18px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; transition: var(--transition); background: var(--blurple); color: white; font-size: 16px; margin-top: 20px; }
+        .btn-send:hover { background: var(--blurple-hover); transform: translateY(-1px); }
 
-        #toast { position: fixed; bottom: 30px; right: 30px; padding: 14px 24px; border-radius: 8px; color: white; font-weight: bold; transform: translateX(200%); transition: 0.4s; z-index: 1000; }
+        #toast { position: fixed; bottom: 25px; right: 25px; padding: 12px 20px; border-radius: 6px; color: white; font-weight: bold; transform: translateX(250%); transition: 0.4s; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         #toast.show { transform: translateX(0); }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <div class="save-btn" onclick="saveToVault()" title="Save Profile">+</div>
+        <div class="save-btn" onclick="saveToVault()" title="Save Current Config">+</div>
         <div style="width: 32px; height: 1px; background: #4e5058; margin: 8px 0;"></div>
         <div id="profileIcons"></div>
     </div>
@@ -119,7 +119,7 @@
     <div class="main">
         <div class="workspace">
             <div class="card">
-                <span class="section-label">Target Hook</span>
+                <span class="section-label">Webhook Destination</span>
                 <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
                 
                 <div style="display: flex; gap: 15px;">
@@ -135,23 +135,21 @@
             </div>
 
             <div class="card">
-                <label class="toggle-wrap">
-                    <div class="switch">
-                        <input type="checkbox" id="useEmbed" onchange="toggleEmbed()">
-                        <span class="slider"></span>
-                    </div>
-                    <span class="section-label" style="margin:0">Enable Rich Embed</span>
+                <label class="toggle-container">
+                    <input type="checkbox" id="useEmbed" style="display:none" onchange="toggleEmbed()">
+                    <div class="switch"></div>
+                    <span class="section-label" style="margin:0">Send as Rich Embed</span>
                 </label>
 
-                <div id="embedControls" style="display:none; border-top: 1px solid #4e5058; padding-top: 20px;">
-                    <div style="display: flex; gap: 15px;">
-                        <div style="flex: 2;">
+                <div id="embedControls" style="display:none; border-top: 1px solid #4e5058; padding-top: 15px;">
+                    <div style="display: flex; gap: 15px; align-items: flex-end;">
+                        <div style="flex: 3;">
                             <span class="section-label">Embed Title</span>
-                            <input type="text" id="embedTitle" placeholder="The headline..." oninput="updateUI()">
+                            <input type="text" id="embedTitle" placeholder="Catchy Headline" oninput="updateUI()" style="margin-bottom:0">
                         </div>
                         <div style="flex: 1;">
-                            <span class="section-label">Accent Color</span>
-                            <input type="color" id="embedColor" value="#5865f2" oninput="updateUI()" style="height:42px; padding:4px; cursor:pointer;">
+                            <span class="section-label">Color</span>
+                            <input type="color" id="embedColor" value="#5865f2" oninput="updateUI()" style="height:42px; padding:2px; cursor:pointer; margin-bottom:0">
                         </div>
                     </div>
                 </div>
@@ -163,32 +161,48 @@
                     <button onclick="exec('italic')">I</button>
                     <button onclick="exec('underline')">U</button>
                     <button onclick="exec('strikeThrough')">S</button>
+                    <div class="sep"></div>
+                    <button onclick="exec('formatBlock', 'h1')">H1</button>
+                    <button onclick="exec('formatBlock', 'h2')">H2</button>
+                    <button onclick="exec('formatBlock', 'h3')">H3</button>
+                    <div class="sep"></div>
+                    <button onclick="exec('formatBlock', 'blockquote')">”</button>
+                    <button onclick="applyCode()" title="Inline Code">`</button>
+                    <button onclick="document.getElementById('fileInput').click()" title="Attach Files">📎</button>
+                    <button onclick="clearEditor()" style="margin-left:auto; color:var(--danger)">Wipe</button>
                 </div>
-                <div id="editor" contenteditable="true" oninput="updateUI()" placeholder="Main content goes here..."></div>
+                <div id="editor" contenteditable="true" oninput="updateUI()" placeholder="Type your message content here..."></div>
+                <div id="attachmentList"></div>
+                <div class="editor-footer">
+                    <span id="charCount">0 / 2000</span>
+                    <span>Supports Discord Markdown</span>
+                </div>
+                <input type="file" id="fileInput" style="display:none" multiple onchange="handleFiles(this.files)">
             </div>
 
             <span class="section-label">Live Preview</span>
-            <div class="preview-container">
+            <div class="preview-box">
                 <div class="prev-pfp" id="prevPfp"></div>
                 <div style="flex:1">
-                    <div><span class="prev-name" id="prevName">Webhook</span><span class="prev-tag">APP</span></div>
-                    <div id="prevBody" style="margin-top: 4px; white-space: pre-wrap;"></div>
+                    <div><span style="font-weight:600; color:white;" id="prevName">Webhook</span><span class="bot-tag">APP</span><span style="color:var(--text-muted); font-size:12px; margin-left:8px;">Today at 12:00 PM</span></div>
+                    <div id="prevBody" style="margin-top: 4px; white-space: pre-wrap; word-break: break-word;"></div>
                     
-                    <div id="prevEmbed" class="embed-preview">
+                    <div id="prevEmbed" class="embed-display">
                         <div id="prevEmbedTitle" class="embed-title"></div>
-                        <div id="prevEmbedDesc" class="embed-desc"></div>
+                        <div id="prevEmbedDesc" style="white-space: pre-wrap;"></div>
                     </div>
                 </div>
             </div>
 
-            <button class="btn-send" id="sendBtn" onclick="send()" style="margin-top: 30px;">DISPATCH TO DISCORD</button>
+            <button class="btn-send" id="sendBtn" onclick="send()">DISPATCH MESSAGE</button>
         </div>
     </div>
 
     <div id="toast"></div>
 
     <script>
-        let profiles = JSON.parse(localStorage.getItem('wh_vault_pro_v3') || '[]');
+        let profiles = JSON.parse(localStorage.getItem('wh_vault_pro_v4') || '[]');
+        let uploadedFiles = [];
 
         function toggleEmbed() {
             const isEnabled = document.getElementById('useEmbed').checked;
@@ -197,33 +211,81 @@
             updateUI();
         }
 
+        function handleFiles(files) {
+            for (let file of files) {
+                const id = Math.random().toString(36).substr(2, 9);
+                uploadedFiles.push({ id, file });
+                const card = document.createElement('div');
+                card.className = 'file-card';
+                card.id = `file-${id}`;
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => card.style.backgroundImage = `url('${e.target.result}')`;
+                    reader.readAsDataURL(file);
+                } else {
+                    card.innerHTML = `<div style="font-size:9px; color:var(--text-muted); padding:25px 5px; text-align:center">FILE</div>`;
+                }
+                card.innerHTML += `<div class="remove-file" onclick="removeFile('${id}')">✕</div>`;
+                document.getElementById('attachmentList').appendChild(card);
+            }
+        }
+
+        function removeFile(id) {
+            uploadedFiles = uploadedFiles.filter(f => f.id !== id);
+            document.getElementById(`file-${id}`).remove();
+        }
+
         function updateUI() {
             const name = document.getElementById('botName').value || 'Webhook';
             const pfp = document.getElementById('botAvatar').value || 'https://cdn.discordapp.com/embed/avatars/0.png';
-            const editorContent = document.getElementById('editor').innerHTML;
+            const html = document.getElementById('editor').innerHTML;
             
             document.getElementById('prevName').innerText = name;
             document.getElementById('prevPfp').style.backgroundImage = `url('${pfp}')`;
 
+            const charCount = document.getElementById('editor').innerText.length;
+            document.getElementById('charCount').innerText = `${charCount} / 2000`;
+            document.getElementById('charCount').style.color = charCount > 2000 ? 'var(--danger)' : 'var(--text-muted)';
+
             if (document.getElementById('useEmbed').checked) {
-                document.getElementById('prevBody').innerHTML = ''; // Clear main body if embedding
+                document.getElementById('prevBody').innerHTML = '';
                 document.getElementById('prevEmbedTitle').innerText = document.getElementById('embedTitle').value;
-                document.getElementById('prevEmbedDesc').innerHTML = editorContent;
+                document.getElementById('prevEmbedDesc').innerHTML = html;
                 document.getElementById('prevEmbed').style.borderColor = document.getElementById('embedColor').value;
             } else {
-                document.getElementById('prevBody').innerHTML = editorContent || '<span style="color:var(--text-muted)">...</span>';
+                document.getElementById('prevBody').innerHTML = html || '<span style="color:var(--text-muted)">...</span>';
             }
         }
 
-        function exec(cmd) { document.execCommand(cmd, false, null); updateUI(); }
+        function exec(cmd, val = null) { document.execCommand(cmd, false, val); updateUI(); }
+        
+        function applyCode() {
+            const sel = window.getSelection();
+            if (!sel.toString()) return;
+            const el = document.createElement("code");
+            el.textContent = sel.toString();
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(el);
+            updateUI();
+        }
+
+        function clearEditor() {
+            if(confirm("Wipe everything?")) {
+                document.getElementById('editor').innerHTML = '';
+                document.getElementById('attachmentList').innerHTML = '';
+                uploadedFiles = [];
+                updateUI();
+            }
+        }
 
         function saveToVault() {
             const url = document.getElementById('webhookUrl').value;
             if(!url) return showToast("Nothing to save!", false);
             profiles.push({ url, name: document.getElementById('botName').value, pfp: document.getElementById('botAvatar').value });
-            localStorage.setItem('wh_vault_pro_v3', JSON.stringify(profiles));
+            localStorage.setItem('wh_vault_pro_v4', JSON.stringify(profiles));
             renderSidebar();
-            showToast("Profile Saved!");
+            showToast("Profile Stored");
         }
 
         function renderSidebar() {
@@ -244,63 +306,71 @@
             });
         }
 
-        function showToast(msg, success = true) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.style.background = success ? 'var(--success)' : 'var(--danger)';
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
-
         async function send() {
             const url = document.getElementById('webhookUrl').value;
             if(!url) return showToast("Missing URL!", false);
 
             const btn = document.getElementById('sendBtn');
             btn.disabled = true;
-            btn.innerText = "SENDING...";
+            btn.innerText = "SHIPPING...";
 
-            // Convert HTML to Discord Markdown
-            let markdown = document.getElementById('editor').innerHTML
+            // Markdown Conversion Logic
+            let text = document.getElementById('editor').innerHTML
+                .replace(/<h1>(.*?)<\/h1>/g, "# $1\n")
+                .replace(/<h2>(.*?)<\/h2>/g, "## $1\n")
+                .replace(/<h3>(.*?)<\/h3>/g, "### $1\n")
                 .replace(/<b>(.*?)<\/b>/g, "**$1**")
                 .replace(/<i>(.*?)<\/i>/g, "*$1*")
                 .replace(/<u>(.*?)<\/u>/g, "__$1__")
                 .replace(/<s>(.*?)<\/s>/g, "~~$1~~")
+                .replace(/<code>(.*?)<\/code>/g, "`$1`")
+                .replace(/<blockquote>(.*?)<\/blockquote>/g, "> $1\n")
                 .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
                 .replace(/<br>/g, "\n")
                 .replace(/&nbsp;/g, " ")
                 .replace(/<[^>]*>/g, "").trim();
 
-            const isEmbed = document.getElementById('useEmbed').checked;
             const payload = {
                 username: document.getElementById('botName').value || undefined,
                 avatar_url: document.getElementById('botAvatar').value || undefined
             };
 
-            if (isEmbed) {
+            if (document.getElementById('useEmbed').checked) {
                 payload.embeds = [{
                     title: document.getElementById('embedTitle').value || undefined,
-                    description: markdown || undefined,
+                    description: text || undefined,
                     color: parseInt(document.getElementById('embedColor').value.replace('#', ''), 16)
                 }];
             } else {
-                payload.content = markdown || undefined;
+                payload.content = text || undefined;
             }
 
+            const formData = new FormData();
+            formData.append('payload_json', JSON.stringify(payload));
+            uploadedFiles.forEach((f, i) => formData.append(`file${i}`, f.file));
+
             try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if(res.ok) showToast("Message Sent!");
-                else showToast("Discord Error", false);
+                const res = await fetch(url, { method: 'POST', body: formData });
+                if(res.ok) {
+                    showToast("Dispatched!");
+                    if(confirm("Clear editor?")) clearEditor();
+                } else {
+                    showToast("Discord Error", false);
+                }
             } catch(e) {
                 showToast("Connection Failed", false);
             } finally {
                 btn.disabled = false;
-                btn.innerText = "DISPATCH TO DISCORD";
+                btn.innerText = "DISPATCH MESSAGE";
             }
+        }
+
+        function showToast(msg, success = true) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.background = success ? 'var(--success)' : 'var(--danger)';
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
 
         window.onload = renderSidebar;
