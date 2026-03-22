@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webhook Commander Pro</title>
+    <title>Webhook Commander</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/5968/5968756.png">
     <style>
         :root {
@@ -11,7 +11,6 @@
             --bg-sidebar: #2b2d31;
             --bg-main: #313338;
             --bg-card: #383a40;
-            --text-white: #ffffff;
             --text-normal: #dbdee1;
             --text-muted: #949ba4;
             --blurple: #5865f2;
@@ -19,97 +18,95 @@
             --danger: #fa777c;
             --success: #23a559;
             --border: rgba(0,0,0,0.2);
-            --discord-bot-tag: #5865f2;
         }
 
         * { box-sizing: border-box; }
         body { 
-            font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif; 
+            font-family: 'gg sans', sans-serif; 
             background-color: var(--bg-darker); color: var(--text-normal);
             margin: 0; display: flex; height: 100vh; overflow: hidden;
         }
 
-        /* Sidebar */
-        .sidebar { width: 280px; background: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid var(--border); }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
-        .sidebar-content { flex: 1; overflow-y: auto; padding: 15px; }
-        .section-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        /* Sidebar: Icon Grid Style */
+        .sidebar { 
+            width: 72px; background: var(--bg-darker); display: flex; flex-direction: column; 
+            align-items: center; padding: 12px 0; gap: 8px; border-right: 1px solid var(--border);
+            overflow-y: auto;
+        }
+        .profile-icon {
+            width: 48px; height: 48px; border-radius: 50%; background: var(--bg-sidebar);
+            cursor: pointer; transition: 0.2s; background-size: cover; background-position: center;
+            position: relative; border: 2px solid transparent;
+        }
+        .profile-icon:hover { border-radius: 30%; border-color: var(--blurple); }
+        .profile-icon.active { border-radius: 30%; border-color: white; }
+        
+        .add-icon {
+            width: 48px; height: 48px; border-radius: 50%; background: var(--bg-sidebar);
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+            color: var(--success); cursor: pointer; transition: 0.2s;
+        }
+        .add-icon:hover { background: var(--success); color: white; border-radius: 30%; }
 
-        /* Main Workspace */
-        .main { flex: 1; background: var(--bg-main); display: flex; flex-direction: column; overflow-y: auto; }
-        .workspace { max-width: 900px; width: 100%; margin: 0 auto; padding: 30px 20px; }
+        /* Main Content */
+        .main { flex: 1; background: var(--bg-main); overflow-y: auto; padding: 20px; }
+        .workspace { max-width: 800px; margin: 0 auto; }
 
-        /* Card Styles */
-        .card { background: var(--bg-card); border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); }
-        input[type="text"] { width: 100%; background: var(--bg-darker); border: 1px solid transparent; color: white; padding: 10px; border-radius: 4px; outline: none; margin-bottom: 8px; }
+        .card { background: var(--bg-card); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .section-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
+        
+        input[type="text"] { 
+            width: 100%; background: var(--bg-darker); border: 1px solid transparent; color: white;
+            padding: 12px; border-radius: 4px; outline: none; margin-bottom: 10px; font-size: 14px;
+        }
         input:focus { border-color: var(--blurple); }
 
-        /* List Items */
-        .chip { background: var(--bg-darker); padding: 8px 12px; border-radius: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
-        .chip:hover { background: #404249; }
-        .chip.active { border-left: 4px solid var(--blurple); background: #404249; }
-        .chip-actions { display: none; }
-        .chip:hover .chip-actions { display: block; color: var(--danger); font-weight: bold; }
+        /* Editor & Preview */
+        .editor-wrap { background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 20px; }
+        .toolbar { background: #2b2d31; padding: 10px; display: flex; gap: 8px; border-bottom: 1px solid var(--border); }
+        .toolbar button { background: transparent; border: none; color: var(--text-normal); cursor: pointer; font-size: 16px; padding: 4px 8px; }
+        #editor { min-height: 150px; padding: 20px; outline: none; line-height: 1.6; background: #383a40; font-size: 15px; }
 
-        /* Editor */
-        .editor-wrap { background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
-        .toolbar { background: #2b2d31; padding: 8px; display: flex; gap: 5px; border-bottom: 1px solid var(--border); }
-        .toolbar button { background: transparent; border: none; color: var(--text-normal); padding: 5px 10px; border-radius: 3px; cursor: pointer; }
-        .toolbar button:hover { background: #4e5058; color: white; }
-        #editor { min-height: 180px; padding: 20px; outline: none; line-height: 1.6; background: #383a40; }
+        .discord-preview { 
+            background: #2b2d31; padding: 15px; border-radius: 8px; display: flex; gap: 14px; 
+            border: 1px solid var(--border); margin-top: 10px;
+        }
+        .prev-pfp { width: 40px; height: 40px; border-radius: 50%; background: var(--blurple); flex-shrink: 0; background-size: cover; }
+        .prev-name { font-weight: 600; color: white; margin-right: 5px; }
+        .prev-tag { background: var(--blurple); font-size: 10px; padding: 1px 4px; border-radius: 3px; color: white; font-weight: bold; }
 
-        /* Discord Preview UI */
-        .preview-area { margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border); }
-        .discord-msg { display: flex; gap: 16px; padding: 5px 0; }
-        .discord-avatar { width: 40px; height: 40px; border-radius: 50%; background: #5865f2; flex-shrink: 0; background-size: cover; background-position: center; }
-        .discord-content { flex: 1; }
-        .discord-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-        .discord-name { font-weight: 500; color: white; font-size: 1rem; cursor: pointer; }
-        .discord-name:hover { text-decoration: underline; }
-        .discord-bot-tag { background: var(--discord-bot-tag); color: white; font-size: 10px; padding: 1px 4px; border-radius: 3px; font-weight: bold; text-transform: uppercase; }
-        .discord-time { color: var(--text-muted); font-size: 12px; }
-        .discord-body { color: #dbdee1; font-size: 1rem; white-space: pre-wrap; word-wrap: break-word; }
-
-        /* Inline Formatting for Preview */
-        .preview-body b, .preview-body strong { color: white; }
-        .preview-body .spoiler { background: #1e1f22; color: #1e1f22; border-radius: 3px; cursor: pointer; }
-        .preview-body .spoiler:hover { background: #2b2d31; }
-        .preview-body .spoiler.revealed { background: rgba(255,255,255,0.1); color: inherit; }
-        .preview-body blockquote { border-left: 4px solid #4e5058; padding-left: 10px; margin: 5px 0; }
-        .preview-body code { background: #2b2d31; padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 85%; }
-
-        /* Buttons */
-        .btn { cursor: pointer; border: none; border-radius: 4px; padding: 12px 20px; font-weight: bold; transition: 0.2s; }
-        .btn-primary { background: var(--blurple); color: white; width: 100%; }
-        .btn-primary:hover { background: var(--blurple-hover); }
-
-        #status-toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; border-radius: 4px; color: white; opacity: 0; transition: 0.3s; z-index: 100; }
-        #status-toast.show { opacity: 1; }
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { flex: 1; padding: 15px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-send { background: var(--blurple); color: white; flex: 2; }
+        .btn-save { background: var(--success); color: white; }
+        
+        #toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; border-radius: 4px; color: white; transform: translateY(100px); transition: 0.3s; }
+        #toast.show { transform: translateY(0); }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="sidebar-header"><h3 style="margin:0; color:white;">Commander</h3></div>
-        <div class="sidebar-content">
-            <span class="section-label">Profiles</span>
-            <div id="profileList"></div>
-            <button class="btn" style="background:transparent; color:var(--text-muted); border:1px dashed #4e5058; width:100%; margin-top:10px;" onclick="addProfile()">+ New Profile</button>
-            
-            <div style="margin-top: 30px;">
-                <span class="section-label">Templates</span>
-                <div id="templateList"></div>
-            </div>
-        </div>
+    <div class="sidebar" id="sidebar">
+        <div class="add-icon" onclick="clearInputs()" title="New/Clear Message">+</div>
+        <div style="width: 32px; height: 2px; background: #4e5058; margin: 4px 0;"></div>
+        <div id="profileIcons"></div>
     </div>
 
     <div class="main">
         <div class="workspace">
             <div class="card">
-                <span class="section-label">Identity</span>
-                <div style="display:flex; gap:10px; margin-top:10px;">
-                    <input type="text" id="botName" placeholder="Bot Display Name" oninput="updatePreview()">
-                    <input type="text" id="botAvatar" placeholder="Avatar URL" oninput="updatePreview()">
+                <span class="section-label">Target Destination</span>
+                <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div style="flex: 1;">
+                        <span class="section-label">Bot Name</span>
+                        <input type="text" id="botName" placeholder="Spidey Bot" oninput="updateUI()">
+                    </div>
+                    <div style="flex: 1;">
+                        <span class="section-label">Avatar URL</span>
+                        <input type="text" id="botAvatar" placeholder="https://..." oninput="updateUI()">
+                    </div>
                 </div>
             </div>
 
@@ -118,142 +115,117 @@
                     <button onclick="exec('bold')"><b>B</b></button>
                     <button onclick="exec('italic')"><i>I</i></button>
                     <button onclick="exec('underline')"><u>U</u></button>
-                    <button onclick="applySpoiler()">||</button>
                     <button onclick="exec('formatBlock', 'blockquote')">Quote</button>
                 </div>
-                <div id="editor" contenteditable="true" oninput="updatePreview()"></div>
+                <div id="editor" contenteditable="true" oninput="updateUI()"></div>
             </div>
 
-            <div class="preview-area">
-                <span class="section-label">Live Discord Preview</span>
-                <div class="discord-msg">
-                    <div class="discord-avatar" id="prevAvatar"></div>
-                    <div class="discord-content">
-                        <div class="discord-header">
-                            <span class="discord-name" id="prevName">Webhook Bot</span>
-                            <span class="discord-bot-tag">Bot</span>
-                            <span class="discord-time">Today at 12:00 PM</span>
-                        </div>
-                        <div class="discord-body" id="prevBody">Your message will appear here...</div>
+            <span class="section-label">Live Preview</span>
+            <div class="discord-preview">
+                <div class="prev-pfp" id="prevPfp"></div>
+                <div class="discord-content">
+                    <div style="margin-bottom: 4px;">
+                        <span class="prev-name" id="prevName">Webhook</span>
+                        <span class="prev-tag">BOT</span>
+                        <span style="color: var(--text-muted); font-size: 12px; margin-left: 5px;">Today at 4:20 PM</span>
                     </div>
+                    <div id="prevBody" style="white-space: pre-wrap;">...</div>
                 </div>
             </div>
 
-            <div style="margin-top: 30px; display:flex; gap:10px;">
-                <button class="btn btn-primary" onclick="send()">Send Message</button>
-                <button class="btn" style="background:#4e5058; color:white;" onclick="saveAsTemplate()">Save Template</button>
+            <div class="btn-row">
+                <button class="btn btn-save" onclick="saveProfile()">Save to Sidebar</button>
+                <button class="btn btn-send" onclick="send()">Send Message</button>
             </div>
         </div>
     </div>
 
-    <div id="status-toast"></div>
+    <div id="toast"></div>
 
     <script>
-        let profiles = JSON.parse(localStorage.getItem('wh_profiles') || '[]');
-        let templates = JSON.parse(localStorage.getItem('wh_templates') || '[]');
-        let activeHook = '';
+        let profiles = JSON.parse(localStorage.getItem('wh_vault') || '[]');
 
         window.onload = () => {
-            renderProfiles();
-            renderTemplates();
-            updatePreview();
+            renderSidebar();
+            // Load Last Draft
+            document.getElementById('webhookUrl').value = localStorage.getItem('draft_url') || '';
+            document.getElementById('botName').value = localStorage.getItem('draft_name') || '';
+            document.getElementById('botAvatar').value = localStorage.getItem('draft_pfp') || '';
+            document.getElementById('editor').innerHTML = localStorage.getItem('draft_msg') || '';
+            updateUI();
         };
 
-        function exec(cmd) { document.execCommand(cmd, false, null); updatePreview(); }
-
-        function applySpoiler() {
-            const sel = window.getSelection();
-            const span = document.createElement("span");
-            span.className = "spoiler";
-            span.onclick = function() { this.classList.toggle('revealed'); };
-            span.textContent = sel.toString() || "spoiler";
-            const range = sel.getRangeAt(0);
-            range.deleteContents();
-            range.insertNode(span);
-            updatePreview();
-        }
-
-        function updatePreview() {
-            const name = document.getElementById('botName').value || 'Webhook Bot';
-            const avatar = document.getElementById('botAvatar').value || 'https://cdn.discordapp.com/embed/avatars/0.png';
-            const editorHtml = document.getElementById('editor').innerHTML;
+        function updateUI() {
+            const name = document.getElementById('botName').value || 'Webhook';
+            const pfp = document.getElementById('botAvatar').value || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            const body = document.getElementById('editor').innerText || 'Your message...';
 
             document.getElementById('prevName').innerText = name;
-            document.getElementById('prevAvatar').style.backgroundImage = `url('${avatar}')`;
-            
-            // Minimal clean preview render
-            let cleanBody = editorHtml
-                .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
-                .replace(/<br>/g, "\n");
-            
-            document.getElementById('prevBody').innerHTML = cleanBody || '<span style="color:var(--text-muted)">Type something...</span>';
-            
-            localStorage.setItem('wh_draft_content', editorHtml);
-            localStorage.setItem('wh_draft_name', name);
-            localStorage.setItem('wh_draft_avatar', avatar);
+            document.getElementById('prevPfp').style.backgroundImage = `url('${pfp}')`;
+            document.getElementById('prevBody').innerText = body;
+
+            // Save Draft
+            localStorage.setItem('draft_url', document.getElementById('webhookUrl').value);
+            localStorage.setItem('draft_name', document.getElementById('botName').value);
+            localStorage.setItem('draft_pfp', document.getElementById('botAvatar').value);
+            localStorage.setItem('draft_msg', document.getElementById('editor').innerHTML);
         }
 
-        function addProfile() {
-            const name = prompt("Profile Name:");
-            const url = prompt("Webhook URL:");
-            if(name && url) {
-                profiles.push({name, url, botName: document.getElementById('botName').value, botAvatar: document.getElementById('botAvatar').value});
-                localStorage.setItem('wh_profiles', JSON.stringify(profiles));
-                renderProfiles();
-            }
+        function exec(cmd) { document.execCommand(cmd, false, null); updateUI(); }
+
+        function saveProfile() {
+            const url = document.getElementById('webhookUrl').value;
+            const name = document.getElementById('botName').value;
+            const pfp = document.getElementById('botAvatar').value;
+
+            if(!url) return showToast("Need a Webhook URL to save!", false);
+
+            const newProfile = { url, name, pfp };
+            profiles.push(newProfile);
+            localStorage.setItem('wh_vault', JSON.stringify(profiles));
+            renderSidebar();
+            showToast("Profile Saved to Vault!");
         }
 
-        function renderProfiles() {
-            const list = document.getElementById('profileList');
-            list.innerHTML = '';
+        function renderSidebar() {
+            const container = document.getElementById('profileIcons');
+            container.innerHTML = '';
             profiles.forEach((p, i) => {
-                const div = document.createElement('div');
-                div.className = `chip ${activeHook === p.url ? 'active' : ''}`;
-                div.innerHTML = `<span>👤 ${p.name}</span><span class="chip-actions" onclick="deleteProfile(${i})">×</span>`;
-                div.onclick = () => {
-                    activeHook = p.url;
-                    if(p.botName) document.getElementById('botName').value = p.botName;
-                    if(p.botAvatar) document.getElementById('botAvatar').value = p.botAvatar;
-                    renderProfiles();
-                    updatePreview();
+                const icon = document.createElement('div');
+                icon.className = 'profile-icon';
+                icon.style.backgroundImage = `url('${p.pfp || 'https://cdn.discordapp.com/embed/avatars/0.png'}')`;
+                icon.title = p.name || "Unnamed Profile";
+                
+                // Right click to delete
+                icon.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    if(confirm("Delete this profile?")) {
+                        profiles.splice(i, 1);
+                        localStorage.setItem('wh_vault', JSON.stringify(profiles));
+                        renderSidebar();
+                    }
                 };
-                list.appendChild(div);
+
+                icon.onclick = () => {
+                    document.getElementById('webhookUrl').value = p.url;
+                    document.getElementById('botName').value = p.name;
+                    document.getElementById('botAvatar').value = p.pfp;
+                    updateUI();
+                    showToast(`Loaded: ${p.name || 'Profile'}`);
+                };
+                container.appendChild(icon);
             });
         }
 
-        function deleteProfile(i) {
-            event.stopPropagation();
-            profiles.splice(i, 1);
-            localStorage.setItem('wh_profiles', JSON.stringify(profiles));
-            renderProfiles();
-        }
-
-        function saveAsTemplate() {
-            const name = prompt("Template Name:");
-            if(name) {
-                templates.push({name, content: document.getElementById('editor').innerHTML});
-                localStorage.setItem('wh_templates', JSON.stringify(templates));
-                renderTemplates();
+        function clearInputs() {
+            if(confirm("Clear current message?")) {
+                document.getElementById('editor').innerHTML = '';
+                updateUI();
             }
         }
 
-        function renderTemplates() {
-            const list = document.getElementById('templateList');
-            list.innerHTML = '';
-            templates.forEach((t, i) => {
-                const div = document.createElement('div');
-                div.className = 'chip';
-                div.innerHTML = `<span>📄 ${t.name}</span>`;
-                div.onclick = () => {
-                    document.getElementById('editor').innerHTML = t.content;
-                    updatePreview();
-                };
-                list.appendChild(div);
-            });
-        }
-
-        function toast(msg, success = true) {
-            const t = document.getElementById('status-toast');
+        function showToast(msg, success = true) {
+            const t = document.getElementById('toast');
             t.innerText = msg;
             t.style.background = success ? 'var(--success)' : 'var(--danger)';
             t.classList.add('show');
@@ -261,29 +233,22 @@
         }
 
         async function send() {
-            if(!activeHook) return toast("Select a profile first!", false);
-            
-            const name = document.getElementById('botName').value;
-            const avatar = document.getElementById('botAvatar').value;
-            let content = document.getElementById('editor').innerHTML
-                .replace(/<b>(.*?)<\/b>/g, "**$1**")
-                .replace(/<i>(.*?)<\/i>/g, "*$1*")
-                .replace(/<u>(.*?)<\/u>/g, "__$1__")
-                .replace(/<span class="spoiler"[^>]*>(.*?)<\/span>/g, "||$1||")
-                .replace(/<blockquote>(.*?)<\/blockquote>/g, "> $1\n")
-                .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
-                .replace(/<br>/g, "\n")
-                .replace(/<[^>]*>/g, "").trim();
+            const url = document.getElementById('webhookUrl').value;
+            if(!url) return showToast("Missing Webhook URL!", false);
+
+            const content = document.getElementById('editor').innerText;
+            const username = document.getElementById('botName').value;
+            const avatar_url = document.getElementById('botAvatar').value;
 
             try {
-                const res = await fetch(activeHook, {
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({content, username: name, avatar_url: avatar})
+                    body: JSON.stringify({ content, username, avatar_url })
                 });
-                if(res.ok) toast("Sent successfully!");
-                else toast("Error sending message.", false);
-            } catch(e) { toast("Connection error.", false); }
+                if(res.ok) showToast("Message Sent!");
+                else showToast("Discord Error", false);
+            } catch(e) { showToast("Network Error", false); }
         }
     </script>
 </body>
