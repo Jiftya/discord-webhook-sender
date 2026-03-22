@@ -18,7 +18,7 @@
         }
 
         body {
-            font-family: 'gg sans', 'Noto Sans', sans-serif;
+            font-family: 'gg sans', 'Segoe UI', Tahoma, sans-serif;
             background-color: var(--bg-main);
             color: var(--text-main);
             display: flex;
@@ -32,122 +32,92 @@
             background: var(--bg-card);
             padding: 32px;
             border-radius: 12px;
-            width: 100%;
-            max-width: 550px;
+            width: 90%;
+            max-width: 600px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
 
-        h2 { margin: 0 0 8px 0; font-size: 24px; color: white; }
-        p { color: var(--text-muted); margin-bottom: 24px; font-size: 14px; }
-
-        label { display: block; font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
+        label { display: block; font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); letter-spacing: 0.5px; }
 
         input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            border: 1px solid transparent;
-            background: var(--bg-input);
-            color: white;
-            box-sizing: border-box;
-            outline: none;
+            width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 4px;
+            border: 1px solid transparent; background: var(--bg-input); color: white; box-sizing: border-box; outline: none; transition: border 0.2s;
         }
-
         input[type="text"]:focus { border-color: var(--discord-blurple); }
 
         .toolbar {
-            display: flex;
-            gap: 4px;
-            background: #232428;
-            padding: 8px;
-            border-radius: 4px 4px 0 0;
+            display: flex; gap: 8px; background: #232428; padding: 10px;
+            border-radius: 8px 8px 0 0; align-items: center; flex-wrap: wrap;
         }
 
-        .toolbar button {
-            background: transparent;
-            color: var(--text-main);
-            border: none;
-            padding: 6px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 14px;
+        .toolbar button, .toolbar select {
+            background: #4e5058; color: white; border: none; padding: 6px 12px;
+            border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;
         }
 
-        .toolbar button:hover { background: #4e5058; color: white; }
+        .toolbar button:hover { background: #6d6f78; }
 
         #editor { 
-            min-height: 120px;
-            background: var(--bg-editor); 
-            padding: 16px;
-            border-radius: 0 0 4px 4px;
-            outline: none;
-            line-height: 1.5;
-            margin-bottom: 24px;
-            font-size: 15px;
-            border: 1px solid transparent;
+            min-height: 160px; background: var(--bg-editor); padding: 16px;
+            border-radius: 0 0 8px 8px; outline: none; line-height: 1.6;
+            margin-bottom: 24px; font-size: 15px; border: 1px solid transparent;
+            overflow-y: auto;
         }
-
-        #editor:focus { border: 1px solid #4e5058; }
 
         .send-btn {
-            background: var(--discord-blurple);
-            color: white;
-            width: 100%;
-            border: none;
-            padding: 14px;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 16px;
+            background: var(--discord-blurple); color: white; width: 100%;
+            border: none; padding: 16px; border-radius: 4px; font-weight: bold;
+            cursor: pointer; font-size: 16px; transition: all 0.2s ease;
         }
 
-        .send-btn:hover { background: var(--discord-hover); }
-        
-        /* Highlight pings in the editor */
-        .ping-mention {
-            color: #c9cdfb;
-            background: rgba(88, 101, 242, 0.3);
-            padding: 0 2px;
-            border-radius: 3px;
-            font-weight: 500;
+        .send-btn:hover { background: var(--discord-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4); }
+
+        .guide {
+            display: flex; justify-content: space-between; margin-top: -15px; margin-bottom: 20px;
+            font-size: 11px; color: var(--text-muted);
         }
+
+        /* Editor Preview Styles */
+        h1 { font-size: 1.8em; margin: 0.2em 0; border-bottom: 1px solid #4e5058; }
+        h2 { font-size: 1.4em; margin: 0.2em 0; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Webhook Portal</h2>
-    <p>Use <b>@everyone</b> or <b>@user_id</b> to ping automatically.</p>
+    <h2 style="color:white; margin-top:0; margin-bottom: 20px;">Webhook Portal</h2>
     
     <label>Webhook URL</label>
     <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
     
-    <label>Message</label>
+    <label>Message Content</label>
     <div class="toolbar">
-        <button onclick="exec('bold')"><b>B</b></button>
-        <button onclick="exec('italic')"><i>I</i></button>
-        <button onclick="exec('underline')"><u>U</u></button>
-        <button onclick="exec('strikeThrough')"><s>S</s></button>
+        <button title="Bold" onclick="exec('bold')"><b>B</b></button>
+        <button title="Italic" onclick="exec('italic')"><i>I</i></button>
+        <button title="Underline" onclick="exec('underline')"><u>U</u></button>
+        <button title="Strikethrough" onclick="exec('strikeThrough')"><s>S</s></button>
+        
+        <select title="Text Size" onchange="exec('formatBlock', this.value); this.selectedIndex=0;">
+            <option value="">Size</option>
+            <option value="h1">Big</option>
+            <option value="h2">Medium</option>
+            <option value="p">Small</option>
+        </select>
     </div>
     
-    <div id="editor" contenteditable="true" oninput="handleInput(this)"></div>
+    <div id="editor" contenteditable="true"></div>
+    
+    <div class="guide">
+        <span><b>User Ping:</b> @@ID@@</span>
+        <span><b>Role Ping:</b> @ID@</span>
+    </div>
 
-    <button class="send-btn" onclick="sendToDiscord()">Send Message</button>
+    <button class="send-btn" onclick="sendToDiscord()">Send to Discord</button>
 </div>
 
 <script>
-    function exec(cmd) {
-        document.execCommand(cmd, false, null);
-    }
-
-    // Automatically detect @ pings as you type
-    function handleInput(el) {
-        const text = el.innerText;
-        
-        // This is a simple logic to show the user we detected a ping.
-        // If they type @everyone or @here, we can leave it, but for IDs
-        // we want to make sure they know it's a special tag.
+    function exec(cmd, val = null) {
+        document.execCommand(cmd, false, val);
     }
 
     async function sendToDiscord() {
@@ -155,18 +125,28 @@
         const editor = document.getElementById('editor');
 
         let content = editor.innerHTML
+            // Headers (Big/Medium)
+            .replace(/<h1>(.*?)<\/h1>/g, "# $1\n")
+            .replace(/<h2>(.*?)<\/h2>/g, "## $1\n")
+            // Formatting
             .replace(/<b>(.*?)<\/b>|<strong>(.*?)<\/strong>/g, "**$1$2**")
             .replace(/<i>(.*?)<\/i>|<em>(.*?)<\/em>/g, "*$1$2*")
             .replace(/<u>(.*?)<\/u>/g, "__$1__")
             .replace(/<s>(.*?)<\/s>|<strike>(.*?)<\/strike>/g, "~~$1$2~~")
+            
+            // --- NEW PING LOGIC ---
+            // User Ping: @@ID@@ -> <@ID>
+            .replace(/@@(\d+)@@/g, "<@$1>")
+            // Role Ping: @ID@ -> <@&ID>
+            .replace(/@(\d+)@/g, "<@&$1>")
+            
+            // Cleanup
             .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
             .replace(/<br>/g, "\n")
             .replace(/&nbsp;/g, " ")
-            // Smart Ping Logic: Replace "@12345..." with "<@12345...>"
-            .replace(/@(\d{17,19})/g, "<@$1>") 
             .replace(/<[^>]*>/g, ""); 
 
-        if (!url || !content.trim()) return alert("Check URL and Message content.");
+        if (!url || !content.trim()) return alert("Please fill in the URL and Message.");
 
         try {
             const res = await fetch(url, {
@@ -174,15 +154,14 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: content })
             });
-
-            if (res.ok) {
-                editor.innerHTML = "";
-                alert("Sent!");
-            } else {
-                alert("Failed. Check Webhook URL.");
+            if (res.ok) { 
+                alert("Success!"); 
+                editor.innerHTML = ""; 
+            } else { 
+                alert("Error: Webhook refused the message."); 
             }
-        } catch (e) {
-            alert("Error connecting to Discord.");
+        } catch (e) { 
+            alert("Connection error."); 
         }
     }
 </script>
