@@ -68,10 +68,10 @@
         .toolbar .sep { width: 1px; height: 20px; background: #4e5058; margin: 0 5px; align-self: center; }
 
         #editor { min-height: 200px; padding: 20px; outline: none; line-height: 1.6; background: #383a40; font-size: 15px; }
-        #editor h1 { font-size: 24px; margin: 10px 0; }
-        #editor h2 { font-size: 20px; margin: 8px 0; }
-        #editor h3 { font-size: 16px; margin: 5px 0; }
-        #editor blockquote { border-left: 4px solid #4e5058; padding-left: 10px; color: var(--text-muted); }
+        #editor h1 { font-size: 24px; margin: 10px 0; font-weight: bold; }
+        #editor h2 { font-size: 20px; margin: 8px 0; font-weight: bold; }
+        #editor h3 { font-size: 16px; margin: 5px 0; font-weight: bold; }
+        #editor blockquote { border-left: 4px solid #4e5058; padding-left: 10px; color: var(--text-muted); margin: 10px 0; }
         #editor code { background: #232428; padding: 2px 4px; border-radius: 4px; font-family: monospace; }
 
         /* Preview */
@@ -79,7 +79,7 @@
             background: #2b2d31; padding: 15px; border-radius: 8px; display: flex; gap: 14px; 
             border: 1px solid var(--border); margin-top: 10px;
         }
-        .prev-pfp { width: 40px; height: 40px; border-radius: 50%; background: var(--blurple); flex-shrink: 0; background-size: cover; }
+        .prev-pfp { width: 40px; height: 40px; border-radius: 50%; background: var(--blurple); flex-shrink: 0; background-size: cover; background-position: center; }
         .prev-name { font-weight: 600; color: white; }
         .prev-tag { background: var(--blurple); font-size: 10px; padding: 1px 4px; border-radius: 3px; color: white; font-weight: bold; margin-left: 5px; }
 
@@ -114,11 +114,11 @@
                 <div style="display: flex; gap: 10px; margin-top: 5px;">
                     <div style="flex: 1;">
                         <span class="section-label">Identity Name</span>
-                        <input type="text" id="botName" placeholder="Default" oninput="updateUI()">
+                        <input type="text" id="botName" placeholder="Default Webhook Name" oninput="updateUI()">
                     </div>
                     <div style="flex: 1;">
                         <span class="section-label">Avatar URL</span>
-                        <input type="text" id="botAvatar" placeholder="https://..." oninput="updateUI()">
+                        <input type="text" id="botAvatar" placeholder="https://i.imgur.com/example.png" oninput="updateUI()">
                     </div>
                 </div>
             </div>
@@ -136,7 +136,7 @@
                     <div class="sep"></div>
                     <button onclick="exec('formatBlock', 'blockquote')">Quote</button>
                     <button onclick="applyCode()">Code</button>
-                    <button onclick="exec('removeFormat')" title="Clear Editor" style="margin-left:auto; color:var(--danger)">Wipe</button>
+                    <button onclick="clearEditor()" title="Clear Editor" style="margin-left:auto; color:var(--danger)">Wipe</button>
                 </div>
                 <div id="editor" contenteditable="true" oninput="updateUI()"></div>
             </div>
@@ -147,8 +147,8 @@
                 <div class="discord-content">
                     <div>
                         <span class="prev-name" id="prevName">Webhook</span>
-                        <span class="prev-tag">BOT</span>
-                        <span style="color: var(--text-muted); font-size: 12px; margin-left: 8px;">Today at 11:48 PM</span>
+                        <span class="prev-tag">APP</span>
+                        <span style="color: var(--text-muted); font-size: 12px; margin-left: 8px;">Today at 11:56 PM</span>
                     </div>
                     <div id="prevBody" style="white-space: pre-wrap; color: #dbdee1;">...</div>
                 </div>
@@ -165,6 +165,7 @@
 
         window.onload = () => {
             renderSidebar();
+            // Load Last Session Drafts
             document.getElementById('webhookUrl').value = localStorage.getItem('d_url') || '';
             document.getElementById('botName').value = localStorage.getItem('d_name') || '';
             document.getElementById('botAvatar').value = localStorage.getItem('d_pfp') || '';
@@ -187,36 +188,36 @@
         }
 
         function exec(cmd, val = null) { 
-            if(val === 'removeFormat') {
-                if(confirm("Wipe all text and formatting?")) {
-                    document.getElementById('editor').innerHTML = '';
-                }
-            } else {
-                document.execCommand(cmd, false, val); 
-            }
+            document.execCommand(cmd, false, val); 
             updateUI(); 
         }
 
         function applyCode() {
             const sel = window.getSelection();
+            if (sel.toString().length === 0) return;
             const el = document.createElement("code");
-            el.textContent = sel.toString() || "code";
+            el.textContent = sel.toString();
             const range = sel.getRangeAt(0);
             range.deleteContents();
             range.insertNode(el);
             updateUI();
         }
 
-        // Now triggered by the Sidebar Plus icon
+        function clearEditor() {
+            if(confirm("Wipe all message content?")) {
+                document.getElementById('editor').innerHTML = '';
+                updateUI();
+            }
+        }
+
         function saveToVault() {
             const url = document.getElementById('webhookUrl').value;
+            const name = document.getElementById('botName').value;
+            const pfp = document.getElementById('botAvatar').value;
+
             if(!url) return showToast("No URL entered to save!", false);
 
-            profiles.push({
-                url: url,
-                name: document.getElementById('botName').value,
-                pfp: document.getElementById('botAvatar').value
-            });
+            profiles.push({ url, name, pfp });
             localStorage.setItem('wh_vault_final', JSON.stringify(profiles));
             renderSidebar();
             showToast("Profile added to Sidebar!");
@@ -265,8 +266,9 @@
 
             const btn = document.querySelector('.btn-send');
             btn.disabled = true;
-            btn.innerText = "SENDING...";
+            btn.innerText = "SHRINKWRAPPING & SENDING...";
 
+            // "Shrinkwrap" Cleaner: Converts HTML to clean Discord Markdown and strips symbols like &nbsp;
             let content = document.getElementById('editor').innerHTML
                 .replace(/<h1>(.*?)<\/h1>/g, "# $1\n")
                 .replace(/<h2>(.*?)<\/h2>/g, "## $1\n")
@@ -277,9 +279,20 @@
                 .replace(/<s>(.*?)<\/s>|<strike>(.*?)<\/strike>/g, "~~$1$2~~")
                 .replace(/<code>(.*?)<\/code>/g, "`$1`")
                 .replace(/<blockquote>(.*?)<\/blockquote>/g, "> $1\n")
+                .replace(/&nbsp;/g, " ")
+                .replace(/&amp;/g, "&")
+                .replace(/&lt;/g, "<")
+                .replace(/&gt;/g, ">")
+                .replace(/&quot;/g, '"')
                 .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
                 .replace(/<br>/g, "\n")
                 .replace(/<[^>]*>/g, "").trim();
+
+            if (!content) {
+                btn.disabled = false;
+                btn.innerText = "SEND TO DISCORD";
+                return showToast("Message is empty!", false);
+            }
 
             try {
                 const res = await fetch(url, {
@@ -295,10 +308,12 @@
                     showToast("Message Sent!");
                     document.getElementById('editor').innerHTML = '';
                     updateUI();
+                } else { 
+                    showToast("Discord Error - Check URL/PFP", false); 
                 }
-                else showToast("Discord rejected the message", false);
-            } catch(e) { showToast("Connection failed", false); }
-            finally {
+            } catch(e) { 
+                showToast("Connection failed", false); 
+            } finally {
                 btn.disabled = false;
                 btn.innerText = "SEND TO DISCORD";
             }
