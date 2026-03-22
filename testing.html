@@ -39,101 +39,80 @@
             width: 48px; height: 48px; border-radius: 50%; background: var(--bg-main);
             cursor: pointer; transition: var(--transition); background-size: cover; background-position: center;
             border: 2px solid transparent; position: relative;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
-        .profile-icon:hover { border-radius: 30%; border-color: var(--blurple); transform: translateY(-2px); }
-        
-        /* Tooltip */
+        .profile-icon:hover { border-radius: 30%; border-color: var(--blurple); }
         .profile-icon::after {
-            content: attr(data-name); position: absolute; left: 60px; top: 50%;
-            transform: translateY(-50%) scale(0.9); background: #000; color: #fff;
+            content: attr(data-name); position: absolute; left: 70px; top: 50%;
+            transform: translateY(-50%); background: #000; color: #fff;
             padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;
             white-space: nowrap; opacity: 0; pointer-events: none; transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-        .profile-icon:hover::after { opacity: 1; transform: translateY(-50%) scale(1); left: 70px; }
+        .profile-icon:hover::after { opacity: 1; left: 80px; }
 
-        .save-icon {
+        .save-btn {
             width: 48px; height: 48px; border-radius: 50%; background: var(--bg-card);
-            display: flex; align-items: center; justify-content: center; font-size: 28px;
-            color: var(--success); cursor: pointer; transition: var(--transition);
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+            color: var(--success); cursor: pointer; transition: var(--transition); border: 1px solid var(--border);
         }
-        .save-icon:hover { background: var(--success); color: white; border-radius: 30%; transform: rotate(90deg); }
+        .save-btn:hover { background: var(--success); color: white; border-radius: 30%; }
 
         /* Main Viewport */
-        .main { flex: 1; background: var(--bg-main); overflow-y: auto; padding: 30px 20px; }
-        .workspace { max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .main { flex: 1; background: var(--bg-main); overflow-y: auto; padding: 40px 20px; }
+        .workspace { max-width: 850px; margin: 0 auto; }
 
-        .card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
-        .section-label { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 0.5px; }
+        .card { background: var(--bg-card); border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid var(--border); }
+        .section-label { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; display: block; letter-spacing: 0.5px; }
         
-        input[type="text"] { 
+        input[type="text"], input[type="url"], textarea { 
             width: 100%; background: var(--bg-input); border: 1px solid transparent; color: white;
-            padding: 12px; border-radius: 6px; outline: none; margin-bottom: 12px; font-size: 14px;
-            transition: border var(--transition);
+            padding: 12px; border-radius: 6px; outline: none; margin-bottom: 16px; font-size: 14px;
         }
         input:focus { border-color: var(--blurple); }
 
-        .btn-fancy {
-            background: #4e5058; color: white; border: none; padding: 6px 12px; 
-            border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;
-            transition: var(--transition); text-transform: uppercase;
-        }
-        .btn-fancy:hover { background: var(--blurple); }
+        /* Toggle Switch */
+        .toggle-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; cursor: pointer; width: fit-content; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4e5058; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
 
         /* Editor */
-        .editor-wrap { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 20px; }
-        .toolbar { background: #232428; padding: 10px; display: flex; gap: 6px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-        .toolbar button { background: transparent; border: none; color: var(--text-normal); cursor: pointer; font-size: 15px; padding: 6px 10px; border-radius: 4px; transition: 0.1s; }
-        .toolbar button:hover { background: #4e5058; color: white; }
-        .toolbar .sep { width: 1px; height: 20px; background: #4e5058; margin: 0 8px; align-self: center; }
+        .editor-wrap { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--bg-card); margin-bottom: 24px; }
+        .toolbar { background: #232428; padding: 10px; display: flex; gap: 8px; border-bottom: 1px solid var(--border); }
+        .toolbar button { background: transparent; border: none; color: var(--text-normal); cursor: pointer; font-weight: bold; padding: 4px 8px; border-radius: 4px; }
+        .toolbar button:hover { background: #4e5058; }
+        #editor { min-height: 180px; padding: 20px; outline: none; line-height: 1.6; }
 
-        #editor { min-height: 220px; padding: 20px; outline: none; line-height: 1.6; background: #2b2d31; font-size: 16px; color: #dbdee1; }
-        
-        /* Character Count */
-        .editor-footer { display: flex; justify-content: space-between; padding: 8px 20px; background: #232428; font-size: 12px; color: var(--text-muted); }
-
-        /* Attachment Previews */
-        #attachmentList { display: flex; gap: 12px; padding: 12px; background: rgba(0,0,0,0.15); flex-wrap: wrap; }
-        .file-card { 
-            width: 80px; height: 80px; background: var(--bg-input); border-radius: 8px; 
-            position: relative; background-size: cover; background-position: center;
-            border: 1px solid var(--border); overflow: hidden;
-        }
-        .file-card .remove-btn { 
-            position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); 
-            color: var(--danger); width: 20px; height: 20px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold;
-        }
-
-        /* Preview Area */
-        .discord-preview { 
-            background: #2b2d31; padding: 16px; border-radius: 8px; display: flex; gap: 16px; 
-            border: 1px solid var(--border); margin-top: 12px;
-        }
-        .prev-pfp { width: 40px; height: 40px; border-radius: 50%; background: var(--blurple); flex-shrink: 0; background-size: cover; background-position: center; }
+        /* Discord Preview */
+        .preview-container { background: #2b2d31; padding: 20px; border-radius: 8px; display: flex; gap: 16px; border: 1px solid var(--border); }
+        .prev-pfp { width: 40px; height: 40px; border-radius: 50%; background: var(--blurple); flex-shrink: 0; background-size: cover; }
         .prev-name { font-weight: 600; color: white; margin-right: 4px; }
-        .prev-tag { background: var(--blurple); font-size: 10px; padding: 1px 4px; border-radius: 3px; color: white; font-weight: bold; position: relative; top: -1px; }
+        .prev-tag { background: var(--blurple); font-size: 10px; padding: 1px 4px; border-radius: 3px; color: white; font-weight: bold; text-transform: uppercase; }
+        
+        .embed-preview { 
+            margin-top: 8px; padding: 12px; background: #232428; border-radius: 4px; 
+            border-left: 4px solid var(--blurple); max-width: 520px; display: none;
+        }
+        .embed-title { color: #00a8fc; font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+        .embed-desc { font-size: 14px; color: #dbdee1; white-space: pre-wrap; }
 
         .btn-send { 
-            width: 100%; padding: 20px; border-radius: 12px; border: none; 
-            font-weight: 800; cursor: pointer; transition: var(--transition);
-            background: var(--blurple); color: white; font-size: 18px; margin-top: 30px;
-            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+            width: 100%; padding: 20px; border-radius: 12px; border: none; font-weight: 800; 
+            cursor: pointer; transition: var(--transition); background: var(--blurple); color: white; font-size: 18px;
         }
-        .btn-send:hover { background: var(--blurple-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4); }
-        .btn-send:active { transform: translateY(0); }
-        
-        #toast { position: fixed; bottom: 30px; right: 30px; padding: 14px 24px; border-radius: 8px; color: white; transform: translateX(200%); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: bold; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .btn-send:hover { background: var(--blurple-hover); transform: translateY(-2px); }
+
+        #toast { position: fixed; bottom: 30px; right: 30px; padding: 14px 24px; border-radius: 8px; color: white; font-weight: bold; transform: translateX(200%); transition: 0.4s; z-index: 1000; }
         #toast.show { transform: translateX(0); }
     </style>
 </head>
 <body>
 
-    <div class="sidebar" id="sidebar">
-        <div class="save-icon" onclick="saveToVault()" title="Save Profile">+</div>
-        <div style="width: 32px; height: 1px; background: #4e5058; margin: 4px 0;"></div>
+    <div class="sidebar">
+        <div class="save-btn" onclick="saveToVault()" title="Save Profile">+</div>
+        <div style="width: 32px; height: 1px; background: #4e5058; margin: 8px 0;"></div>
         <div id="profileIcons"></div>
     </div>
 
@@ -143,13 +122,10 @@
                 <span class="section-label">Target Hook</span>
                 <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
                 
-                <div style="display: flex; gap: 15px; margin-top: 10px;">
+                <div style="display: flex; gap: 15px;">
                     <div style="flex: 1;">
                         <span class="section-label">Identity Name</span>
-                        <div style="display:flex; gap:8px; align-items:center;">
-                            <input type="text" id="botName" placeholder="Bot Name" oninput="updateUI()" style="margin-bottom:0;">
-                            <button class="btn-fancy" onclick="makeFancy()">Fancy</button>
-                        </div>
+                        <input type="text" id="botName" placeholder="Bot Name" oninput="updateUI()">
                     </div>
                     <div style="flex: 1;">
                         <span class="section-label">Avatar URL</span>
@@ -158,150 +134,94 @@
                 </div>
             </div>
 
+            <div class="card">
+                <label class="toggle-wrap">
+                    <div class="switch">
+                        <input type="checkbox" id="useEmbed" onchange="toggleEmbed()">
+                        <span class="slider"></span>
+                    </div>
+                    <span class="section-label" style="margin:0">Enable Rich Embed</span>
+                </label>
+
+                <div id="embedControls" style="display:none; border-top: 1px solid #4e5058; padding-top: 20px;">
+                    <div style="display: flex; gap: 15px;">
+                        <div style="flex: 2;">
+                            <span class="section-label">Embed Title</span>
+                            <input type="text" id="embedTitle" placeholder="The headline..." oninput="updateUI()">
+                        </div>
+                        <div style="flex: 1;">
+                            <span class="section-label">Accent Color</span>
+                            <input type="color" id="embedColor" value="#5865f2" oninput="updateUI()" style="height:42px; padding:4px; cursor:pointer;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="editor-wrap">
                 <div class="toolbar">
-                    <button onclick="exec('bold')" title="Bold"><b>B</b></button>
-                    <button onclick="exec('italic')" title="Italic"><i>I</i></button>
-                    <button onclick="exec('underline')" title="Underline"><u>U</u></button>
-                    <button onclick="exec('strikeThrough')" title="Strikethrough"><s>S</s></button>
-                    <div class="sep"></div>
-                    <button onclick="exec('formatBlock', 'h1')">H1</button>
-                    <button onclick="exec('formatBlock', 'h2')">H2</button>
-                    <button onclick="exec('formatBlock', 'h3')">H3</button>
-                    <div class="sep"></div>
-                    <button onclick="exec('formatBlock', 'blockquote')">”</button>
-                    <button onclick="applyCode()" title="Code Block"><code>&lt;/&gt;</code></button>
-                    <button onclick="document.getElementById('fileInput').click()" title="Attach Files">📎</button>
-                    <button onclick="clearEditor()" style="margin-left:auto; color:var(--danger)" title="Clear Everything">Wipe</button>
+                    <button onclick="exec('bold')">B</button>
+                    <button onclick="exec('italic')">I</button>
+                    <button onclick="exec('underline')">U</button>
+                    <button onclick="exec('strikeThrough')">S</button>
                 </div>
-                <div id="editor" contenteditable="true" oninput="updateUI()" placeholder="Type your message here..."></div>
-                <div id="attachmentList"></div>
-                <div class="editor-footer">
-                    <span id="charCount">0 / 2000</span>
-                    <span>Supports Discord Markdown</span>
-                </div>
-                <input type="file" id="fileInput" style="display:none" multiple onchange="handleFiles(this.files)">
+                <div id="editor" contenteditable="true" oninput="updateUI()" placeholder="Main content goes here..."></div>
             </div>
 
             <span class="section-label">Live Preview</span>
-            <div class="discord-preview">
+            <div class="preview-container">
                 <div class="prev-pfp" id="prevPfp"></div>
-                <div class="discord-content" style="flex:1">
-                    <div><span class="prev-name" id="prevName">Webhook</span><span class="prev-tag">APP</span><span style="color:var(--text-muted); font-size:12px; margin-left:8px;">Today at 12:00 PM</span></div>
-                    <div id="prevBody" style="white-space: pre-wrap; margin-top: 4px; word-break: break-word;"></div>
+                <div style="flex:1">
+                    <div><span class="prev-name" id="prevName">Webhook</span><span class="prev-tag">APP</span></div>
+                    <div id="prevBody" style="margin-top: 4px; white-space: pre-wrap;"></div>
+                    
+                    <div id="prevEmbed" class="embed-preview">
+                        <div id="prevEmbedTitle" class="embed-title"></div>
+                        <div id="prevEmbedDesc" class="embed-desc"></div>
+                    </div>
                 </div>
             </div>
 
-            <button class="btn-send" id="sendBtn" onclick="send()">SEND TO DISCORD</button>
+            <button class="btn-send" id="sendBtn" onclick="send()" style="margin-top: 30px;">DISPATCH TO DISCORD</button>
         </div>
     </div>
 
     <div id="toast"></div>
 
     <script>
-        let profiles = JSON.parse(localStorage.getItem('wh_vault_pro_v1') || '[]');
-        let uploadedFiles = [];
+        let profiles = JSON.parse(localStorage.getItem('wh_vault_pro_v3') || '[]');
 
-        window.onload = () => {
-            renderSidebar();
-            document.getElementById('webhookUrl').value = localStorage.getItem('d_url') || '';
-            document.getElementById('botName').value = localStorage.getItem('d_name') || '';
-            document.getElementById('botAvatar').value = localStorage.getItem('d_pfp') || '';
-            document.getElementById('editor').innerHTML = localStorage.getItem('d_msg') || '';
-            updateUI();
-        };
-
-        function makeFancy() {
-            const input = document.getElementById('botName');
-            const map = {
-                'a': '𝖺', 'b': '𝖻', 'c': '𝖼', 'd': '𝖽', 'e': '𝖾', 'f': '𝖿', 'g': '𝗀', 'h': '𝗁', 'i': '𝗂', 'j': '𝗃', 'k': '𝗄', 'l': '𝗅', 'm': '𝗆', 'n': '𝗇', 'o': '𝗈', 'p': '𝗉', 'q': '𝗊', 'r': '𝗋', 's': '𝗌', 't': '𝗍', 'u': '𝗎', 'v': '𝗏', 'w': '𝗐', 'x': '𝗑', 'y': '𝗒', 'z': '𝗓',
-                'A': '𝖠', 'B': '𝖡', 'C': '𝖢', 'D': '𝖣', 'E': '𝖤', 'F': '𝖥', 'G': '𝖦', 'H': '𝖧', 'I': '𝖨', 'J': '𝖩', 'K': '𝖪', 'L': '𝖫', 'M': '𝖬', 'N': '𝖭', 'O': '𝖮', 'P': '𝖯', 'Q': '𝖰', 'R': '𝖱', 'S': '𝖲', 'T': '𝖳', 'U': '𝖴', 'V': '𝖵', 'W': '𝖶', 'X': '𝖷', 'Y': '𝖸', 'Z': '𝖹'
-            };
-            input.value = input.value.split('').map(char => map[char] || char).join('');
+        function toggleEmbed() {
+            const isEnabled = document.getElementById('useEmbed').checked;
+            document.getElementById('embedControls').style.display = isEnabled ? 'block' : 'none';
+            document.getElementById('prevEmbed').style.display = isEnabled ? 'block' : 'none';
             updateUI();
         }
 
         function updateUI() {
             const name = document.getElementById('botName').value || 'Webhook';
             const pfp = document.getElementById('botAvatar').value || 'https://cdn.discordapp.com/embed/avatars/0.png';
-            const editorBody = document.getElementById('editor').innerHTML;
+            const editorContent = document.getElementById('editor').innerHTML;
             
             document.getElementById('prevName').innerText = name;
             document.getElementById('prevPfp').style.backgroundImage = `url('${pfp}')`;
-            document.getElementById('prevBody').innerHTML = editorBody || '<span style="color:var(--text-muted)">...</span>';
 
-            // Character Count logic
-            const plainText = document.getElementById('editor').innerText;
-            const count = plainText.length;
-            const counterEl = document.getElementById('charCount');
-            counterEl.innerText = `${count} / 2000`;
-            counterEl.style.color = count > 2000 ? 'var(--danger)' : 'var(--text-muted)';
-
-            localStorage.setItem('d_url', document.getElementById('webhookUrl').value);
-            localStorage.setItem('d_name', document.getElementById('botName').value);
-            localStorage.setItem('d_pfp', document.getElementById('botAvatar').value);
-            localStorage.setItem('d_msg', editorBody);
-        }
-
-        function handleFiles(files) {
-            for (let file of files) {
-                const fileId = Math.random().toString(36).substr(2, 9);
-                uploadedFiles.push({ id: fileId, file: file });
-                
-                const card = document.createElement('div');
-                card.className = 'file-card';
-                card.id = `file-${fileId}`;
-                
-                // If it's an image, show a thumbnail
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => card.style.backgroundImage = `url('${e.target.result}')`;
-                    reader.readAsDataURL(file);
-                } else {
-                    card.innerHTML = `<div style="font-size:10px; padding:20px 5px; text-align:center; color:var(--text-muted)">DOC</div>`;
-                }
-
-                card.innerHTML += `<div class="remove-btn" onclick="removeFile('${fileId}')">✕</div>`;
-                document.getElementById('attachmentList').appendChild(card);
+            if (document.getElementById('useEmbed').checked) {
+                document.getElementById('prevBody').innerHTML = ''; // Clear main body if embedding
+                document.getElementById('prevEmbedTitle').innerText = document.getElementById('embedTitle').value;
+                document.getElementById('prevEmbedDesc').innerHTML = editorContent;
+                document.getElementById('prevEmbed').style.borderColor = document.getElementById('embedColor').value;
+            } else {
+                document.getElementById('prevBody').innerHTML = editorContent || '<span style="color:var(--text-muted)">...</span>';
             }
         }
 
-        function removeFile(id) {
-            uploadedFiles = uploadedFiles.filter(f => f.id !== id);
-            document.getElementById(`file-${id}`).remove();
-        }
-
-        function exec(cmd, val = null) { document.execCommand(cmd, false, val); updateUI(); }
-
-        function applyCode() {
-            const sel = window.getSelection();
-            if (!sel.toString()) return;
-            const el = document.createElement("code");
-            el.textContent = sel.toString();
-            const range = sel.getRangeAt(0);
-            range.deleteContents();
-            range.insertNode(el);
-            updateUI();
-        }
-
-        function clearEditor() {
-            if(confirm("Wipe everything?")) { 
-                document.getElementById('editor').innerHTML = ''; 
-                document.getElementById('attachmentList').innerHTML = '';
-                uploadedFiles = [];
-                updateUI(); 
-            }
-        }
+        function exec(cmd) { document.execCommand(cmd, false, null); updateUI(); }
 
         function saveToVault() {
             const url = document.getElementById('webhookUrl').value;
-            if(!url) return showToast("No URL to save!", false);
-            profiles.push({ 
-                url, 
-                name: document.getElementById('botName').value || "Unnamed", 
-                pfp: document.getElementById('botAvatar').value 
-            });
-            localStorage.setItem('wh_vault_pro_v1', JSON.stringify(profiles));
+            if(!url) return showToast("Nothing to save!", false);
+            profiles.push({ url, name: document.getElementById('botName').value, pfp: document.getElementById('botAvatar').value });
+            localStorage.setItem('wh_vault_pro_v3', JSON.stringify(profiles));
             renderSidebar();
             showToast("Profile Saved!");
         }
@@ -313,22 +233,12 @@
                 const icon = document.createElement('div');
                 icon.className = 'profile-icon';
                 icon.style.backgroundImage = `url('${p.pfp || 'https://cdn.discordapp.com/embed/avatars/1.png'}')`;
-                icon.setAttribute('data-name', p.name);
-                
+                icon.setAttribute('data-name', p.name || 'Unnamed');
                 icon.onclick = () => {
                     document.getElementById('webhookUrl').value = p.url;
                     document.getElementById('botName').value = p.name;
                     document.getElementById('botAvatar').value = p.pfp;
                     updateUI();
-                    showToast(`Loaded: ${p.name}`);
-                };
-                icon.oncontextmenu = (e) => {
-                    e.preventDefault();
-                    if(confirm(`Delete "${p.name}"?`)) { 
-                        profiles.splice(i, 1); 
-                        localStorage.setItem('wh_vault_pro_v1', JSON.stringify(profiles)); 
-                        renderSidebar(); 
-                    }
                 };
                 container.appendChild(icon);
             });
@@ -348,61 +258,52 @@
 
             const btn = document.getElementById('sendBtn');
             btn.disabled = true;
-            btn.innerText = "SHRINKWRAPPING...";
+            btn.innerText = "SENDING...";
 
-            let html = document.getElementById('editor').innerHTML;
-
-            // ENHANCED SHRINKWRAP: SWAPS SPACES AND SYMBOLS
-            let content = html
-                .replace(/<h1>\s*(.*?)\s*<\/h1>/g, "# $1\n")
-                .replace(/<h2>\s*(.*?)\s*<\/h2>/g, "## $1\n")
-                .replace(/<h3>\s*(.*?)\s*<\/h3>/g, "### $1\n")
-                .replace(/<b>(\s*)(.*?)(\s*)<\/b>|<strong>(\s*)(.*?)(\s*)<\/strong>/g, "$1$4**$2$5**$3$6")
-                .replace(/<i>(\s*)(.*?)(\s*)<\/i>|<em>(\s*)(.*?)(\s*)<\/em>/g, "$1$4*$2$5*$3$6")
-                .replace(/<u>(\s*)(.*?)(\s*)<\/u>/g, "$1__$2__$3")
-                .replace(/<s>(\s*)(.*?)(\s*)<\/s>/g, "$1~~$2~~$3")
-                .replace(/<code>(\s*)(.*?)(\s*)<\/code>/g, "$1`$2`$3")
-                .replace(/<blockquote>\s*(.*?)\s*<\/blockquote>/g, "> $1\n")
-                .replace(/&nbsp;/g, " ")
+            // Convert HTML to Discord Markdown
+            let markdown = document.getElementById('editor').innerHTML
+                .replace(/<b>(.*?)<\/b>/g, "**$1**")
+                .replace(/<i>(.*?)<\/i>/g, "*$1*")
+                .replace(/<u>(.*?)<\/u>/g, "__$1__")
+                .replace(/<s>(.*?)<\/s>/g, "~~$1~~")
                 .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
                 .replace(/<br>/g, "\n")
+                .replace(/&nbsp;/g, " ")
                 .replace(/<[^>]*>/g, "").trim();
 
-            if (!content && uploadedFiles.length === 0) {
-                btn.disabled = false;
-                btn.innerText = "SEND TO DISCORD";
-                return showToast("Nothing to send!", false);
+            const isEmbed = document.getElementById('useEmbed').checked;
+            const payload = {
+                username: document.getElementById('botName').value || undefined,
+                avatar_url: document.getElementById('botAvatar').value || undefined
+            };
+
+            if (isEmbed) {
+                payload.embeds = [{
+                    title: document.getElementById('embedTitle').value || undefined,
+                    description: markdown || undefined,
+                    color: parseInt(document.getElementById('embedColor').value.replace('#', ''), 16)
+                }];
+            } else {
+                payload.content = markdown || undefined;
             }
-
-            const formData = new FormData();
-            formData.append('payload_json', JSON.stringify({
-                content: content,
-                username: document.getElementById('botName').value,
-                avatar_url: document.getElementById('botAvatar').value
-            }));
-
-            uploadedFiles.forEach((fObj, index) => {
-                formData.append(`file${index}`, fObj.file);
-            });
 
             try {
-                const res = await fetch(url, { method: 'POST', body: formData });
-                if(res.ok) { 
-                    showToast("Message Dispatched!"); 
-                    document.getElementById('editor').innerHTML = ''; 
-                    document.getElementById('attachmentList').innerHTML = '';
-                    uploadedFiles = [];
-                    updateUI(); 
-                } else {
-                    showToast("Discord Error", false);
-                }
-            } catch(e) { 
-                showToast("Connection Failed", false); 
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if(res.ok) showToast("Message Sent!");
+                else showToast("Discord Error", false);
+            } catch(e) {
+                showToast("Connection Failed", false);
             } finally {
                 btn.disabled = false;
-                btn.innerText = "SEND TO DISCORD";
+                btn.innerText = "DISPATCH TO DISCORD";
             }
         }
+
+        window.onload = renderSidebar;
     </script>
 </body>
 </html>
