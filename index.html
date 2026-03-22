@@ -18,6 +18,7 @@
             --danger: #fa777c;
             --success: #23a559;
             --border: rgba(0,0,0,0.2);
+            --spoiler-bg: #202225;
         }
 
         * { box-sizing: border-box; }
@@ -39,7 +40,6 @@
         }
         .profile-icon:hover { border-radius: 30%; border-color: var(--blurple); }
         
-        /* Hover Tooltip */
         .profile-icon::after {
             content: attr(data-name); position: absolute; left: 60px; top: 50%;
             transform: translateY(-50%); background: black; color: white;
@@ -75,7 +75,10 @@
 
         #editor { min-height: 200px; padding: 20px; outline: none; line-height: 1.6; background: #383a40; font-size: 15px; color: white; }
         
-        /* Attachments List */
+        /* Spoiler Styling in Editor */
+        .spoiler-text { background: var(--spoiler-bg); color: var(--spoiler-bg); border-radius: 3px; transition: color 0.2s; cursor: pointer; padding: 0 2px; }
+        .spoiler-text:hover { color: rgba(255,255,255,0.8); }
+
         #attachmentList { display: flex; gap: 10px; padding: 10px; background: rgba(0,0,0,0.1); flex-wrap: wrap; }
         .file-pill { background: var(--bg-darker); padding: 5px 10px; border-radius: 4px; font-size: 12px; display: flex; align-items: center; gap: 8px; }
         .file-pill span { color: var(--danger); cursor: pointer; font-weight: bold; }
@@ -126,17 +129,18 @@
 
             <div class="editor-wrap">
                 <div class="toolbar">
-                    <button onclick="exec('bold')"><b>B</b></button>
-                    <button onclick="exec('italic')"><i>I</i></button>
-                    <button onclick="exec('underline')"><u>U</u></button>
-                    <button onclick="exec('strikeThrough')"><s>S</s></button>
+                    <button onclick="exec('bold')" title="Bold"><b>B</b></button>
+                    <button onclick="exec('italic')" title="Italic"><i>I</i></button>
+                    <button onclick="exec('underline')" title="Underline"><u>U</u></button>
+                    <button onclick="exec('strikeThrough')" title="Strike"><s>S</s></button>
                     <div class="sep"></div>
                     <button onclick="exec('formatBlock', 'h1')">H1</button>
                     <button onclick="exec('formatBlock', 'h2')">H2</button>
                     <button onclick="exec('formatBlock', 'h3')">H3</button>
                     <div class="sep"></div>
                     <button onclick="exec('formatBlock', 'blockquote')">Quote</button>
-                    <button onclick="applyCode()">Code</button>
+                    <button onclick="applyCode()" title="Code">Code</button>
+                    <button onclick="applySpoiler()" title="Spoiler">|| Spoiler</button>
                     <button onclick="document.getElementById('fileInput').click()">📄</button>
                     <button onclick="clearEditor()" style="margin-left:auto; color:var(--danger)">Wipe</button>
                 </div>
@@ -213,6 +217,18 @@
             updateUI();
         }
 
+        function applySpoiler() {
+            const sel = window.getSelection();
+            if (!sel.toString()) return;
+            const el = document.createElement("span");
+            el.className = "spoiler-text";
+            el.textContent = sel.toString();
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(el);
+            updateUI();
+        }
+
         function clearEditor() {
             if(confirm("Wipe editor?")) { 
                 document.getElementById('editor').innerHTML = ''; 
@@ -242,7 +258,7 @@
                 const icon = document.createElement('div');
                 icon.className = 'profile-icon';
                 icon.style.backgroundImage = `url('${p.pfp || 'https://cdn.discordapp.com/embed/avatars/1.png'}')`;
-                icon.setAttribute('data-name', p.name); // Hover Name
+                icon.setAttribute('data-name', p.name); 
                 
                 icon.onclick = () => {
                     document.getElementById('webhookUrl').value = p.url;
@@ -279,6 +295,7 @@
                 .replace(/<h1>\s*(.*?)\s*<\/h1>/g, "# $1\n")
                 .replace(/<h2>\s*(.*?)\s*<\/h2>/g, "## $1\n")
                 .replace(/<h3>\s*(.*?)\s*<\/h3>/g, "### $1\n")
+                .replace(/<span class="spoiler-text">(.*?)<\/span>/g, "||$1||")
                 .replace(/<b>(\s*)(.*?)(\s*)<\/b>/g, "$1**$2**$3")
                 .replace(/<strong>(\s*)(.*?)(\s*)<\/strong>/g, "$1**$2**$3")
                 .replace(/<i>(\s*)(.*?)(\s*)<\/i>/g, "$1*$2*$3")
