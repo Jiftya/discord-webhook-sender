@@ -20,9 +20,9 @@
 
         body { font-family: 'gg sans', sans-serif; background-color: var(--bg-main); color: var(--text-main); display: flex; justify-content: center; padding: 20px; margin: 0; }
         .container { width: 100%; max-width: 750px; display: flex; flex-direction: column; gap: 20px; }
-        .card { background: var(--bg-card); padding: 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+        .card { background: var(--bg-card); padding: 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); position: relative; }
         
-        h3 { margin-top: 0; color: white; font-size: 18px; }
+        h3 { margin-top: 0; color: white; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
         label { display: block; font-size: 11px; font-weight: bold; text-transform: uppercase; margin: 10px 0 5px 0; color: var(--text-muted); }
 
         input[type="text"], input[type="file"] {
@@ -36,6 +36,15 @@
         .webhook-chip { background: #4e5058; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; }
         .webhook-chip:hover { background: var(--discord-blurple); }
 
+        /* Toggle Switch Styling */
+        .switch-container { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); }
+        .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4e5058; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(14px); }
+
         .toolbar { display: flex; gap: 8px; background: #232428; padding: 10px; border-radius: 8px 8px 0 0; }
         .toolbar button, .toolbar select { background: #4e5058; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
         
@@ -44,7 +53,6 @@
 
         .send-btn { background: var(--discord-blurple); color: white; width: 100%; border: none; padding: 16px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 16px; }
         .send-btn:hover { background: var(--discord-hover); }
-        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         #status { text-align: center; font-size: 12px; margin-top: 10px; height: 15px; }
     </style>
@@ -63,15 +71,24 @@
     </div>
 
     <div class="card">
-        <h3>🎭 Bot Identity</h3>
+        <h3>
+            🎭 Bot Identity
+            <div class="switch-container">
+                <span>Remember Identity</span>
+                <label class="switch">
+                    <input type="checkbox" id="saveIdentityToggle" onchange="toggleIdentityStorage()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </h3>
         <div class="row">
             <div style="flex: 1;">
                 <label>Bot Name</label>
-                <input type="text" id="overrideName" placeholder="Display Name">
+                <input type="text" id="overrideName" placeholder="Display Name" oninput="handleIdentityInput()">
             </div>
             <div style="flex: 1;">
                 <label>Avatar URL</label>
-                <input type="text" id="overrideAvatar" placeholder="https://link-to-pfp.png">
+                <input type="text" id="overrideAvatar" placeholder="https://link-to-pfp.png" oninput="handleIdentityInput()">
             </div>
         </div>
     </div>
@@ -102,8 +119,38 @@
 
 <script>
     let savedHooks = JSON.parse(localStorage.getItem('discordHooks') || '[]');
+    
+    // Initial load for Identity
+    window.onload = () => {
+        const shouldSave = localStorage.getItem('saveIdentity') === 'true';
+        document.getElementById('saveIdentityToggle').checked = shouldSave;
+        
+        if (shouldSave) {
+            document.getElementById('overrideName').value = localStorage.getItem('stickyName') || '';
+            document.getElementById('overrideAvatar').value = localStorage.getItem('stickyAvatar') || '';
+        }
+        renderHooks();
+    };
 
     function exec(cmd, val = null) { document.execCommand(cmd, false, val); }
+
+    function toggleIdentityStorage() {
+        const isChecked = document.getElementById('saveIdentityToggle').checked;
+        localStorage.setItem('saveIdentity', isChecked);
+        if (isChecked) {
+            handleIdentityInput(); // Save current values immediately
+        } else {
+            localStorage.removeItem('stickyName');
+            localStorage.removeItem('stickyAvatar');
+        }
+    }
+
+    function handleIdentityInput() {
+        if (document.getElementById('saveIdentityToggle').checked) {
+            localStorage.setItem('stickyName', document.getElementById('overrideName').value);
+            localStorage.setItem('stickyAvatar', document.getElementById('overrideAvatar').value);
+        }
+    }
 
     function renderHooks() {
         const list = document.getElementById('webhookList');
@@ -176,7 +223,6 @@
         try {
             const res = await fetch(url, { method: 'POST', body: formData });
             if (res.ok) { 
-                // CRITICAL: We clear the message and file, BUT keep Name, PFP, and URL.
                 editor.innerHTML = ""; 
                 fileInput.value = ""; 
                 status.innerText = "✅ Message Sent!";
@@ -192,8 +238,6 @@
             btn.disabled = false; 
         }
     }
-
-    renderHooks();
 </script>
 </body>
 </html>
