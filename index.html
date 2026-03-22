@@ -15,100 +15,88 @@
             --text-muted: #949ba4;
             --discord-blurple: #5865f2;
             --discord-hover: #4752c4;
+            --success: #23a559;
         }
 
-        body {
-            font-family: 'gg sans', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            padding: 40px 20px;
-            margin: 0;
-        }
-
-        .container { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 20px; }
+        body { font-family: 'gg sans', sans-serif; background-color: var(--bg-main); color: var(--text-main); display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .container { width: 100%; max-width: 750px; display: flex; flex-direction: column; gap: 20px; }
+        .card { background: var(--bg-card); padding: 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
         
-        .card {
-            background: var(--bg-card);
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-        }
-
         h3 { margin-top: 0; color: white; font-size: 18px; }
-        label { display: block; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
+        label { display: block; font-size: 11px; font-weight: bold; text-transform: uppercase; margin: 10px 0 5px 0; color: var(--text-muted); }
 
         input[type="text"], input[type="file"] {
-            width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 4px;
-            border: 1px solid transparent; background: var(--bg-input); color: white; box-sizing: border-box; outline: none;
+            width: 100%; padding: 12px; border-radius: 4px; border: 1px solid transparent; 
+            background: var(--bg-input); color: white; box-sizing: border-box; outline: none;
         }
+        input:focus { border-color: var(--discord-blurple); }
 
-        .save-row { display: flex; gap: 8px; margin-bottom: 15px; }
+        .row { display: flex; gap: 10px; margin-bottom: 10px; }
         .webhook-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; border-top: 1px solid #3f4147; padding-top: 15px; }
-        .webhook-chip {
-            background: #4e5058; padding: 6px 12px; border-radius: 15px; font-size: 13px;
-            cursor: pointer; display: flex; align-items: center; gap: 8px;
-        }
+        .webhook-chip { background: #4e5058; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; }
         .webhook-chip:hover { background: var(--discord-blurple); }
 
-        .toolbar {
-            display: flex; gap: 8px; background: #232428; padding: 10px;
-            border-radius: 8px 8px 0 0; align-items: center;
-        }
-        .toolbar button, .toolbar select {
-            background: #4e5058; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer;
-        }
+        .toolbar { display: flex; gap: 8px; background: #232428; padding: 10px; border-radius: 8px 8px 0 0; }
+        .toolbar button, .toolbar select { background: #4e5058; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
+        
+        #editor { min-height: 140px; background: var(--bg-editor); padding: 16px; border-radius: 0 0 8px 8px; outline: none; line-height: 1.6; border: 1px solid transparent; }
+        #editor:focus { border-color: #4e5058; }
 
-        #editor { 
-            min-height: 150px; background: var(--bg-editor); padding: 16px;
-            border-radius: 0 0 8px 8px; outline: none; line-height: 1.6; margin-bottom: 15px;
-        }
-
-        .file-section { margin-bottom: 20px; padding: 10px; background: #232428; border-radius: 8px; }
-
-        .send-btn {
-            background: var(--discord-blurple); color: white; width: 100%;
-            border: none; padding: 16px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 16px;
-        }
+        .send-btn { background: var(--discord-blurple); color: white; width: 100%; border: none; padding: 16px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 16px; }
         .send-btn:hover { background: var(--discord-hover); }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        #status { text-align: center; font-size: 12px; margin-top: 10px; height: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="card">
-        <h3>🔗 Webhook Manager</h3>
-        <div class="save-row">
-            <input type="text" id="nickName" placeholder="Name" style="flex: 1; margin: 0;">
-            <input type="text" id="webhookUrl" placeholder="Webhook URL" style="flex: 2; margin: 0;">
-            <button onclick="saveWebhook()" style="background: var(--discord-blurple); color: white; border: none; padding: 0 15px; border-radius: 4px; cursor: pointer;">Save</button>
+        <h3>🔗 Saved Channels</h3>
+        <div class="row">
+            <input type="text" id="nickName" placeholder="Channel Name" style="flex: 1;">
+            <input type="text" id="webhookUrl" placeholder="Webhook URL" style="flex: 2;">
+            <button onclick="saveWebhook()" style="background: var(--discord-blurple); color: white; border: none; padding: 0 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">Save</button>
         </div>
         <div class="webhook-list" id="webhookList"></div>
     </div>
 
     <div class="card">
-        <h3>📝 Message & Files</h3>
+        <h3>🎭 Bot Identity</h3>
+        <div class="row">
+            <div style="flex: 1;">
+                <label>Bot Name</label>
+                <input type="text" id="overrideName" placeholder="Display Name">
+            </div>
+            <div style="flex: 1;">
+                <label>Avatar URL</label>
+                <input type="text" id="overrideAvatar" placeholder="https://link-to-pfp.png">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>📝 Message</h3>
         <div class="toolbar">
             <button onclick="exec('bold')"><b>B</b></button>
             <button onclick="exec('italic')"><i>I</i></button>
             <button onclick="exec('underline')"><u>U</u></button>
             <button onclick="exec('strikeThrough')"><s>S</s></button>
             <select onchange="exec('formatBlock', this.value); this.selectedIndex=0;">
-                <option value="">Size</option>
+                <option value="">Text Size</option>
                 <option value="h1">Big</option>
                 <option value="h2">Medium</option>
                 <option value="p">Small</option>
             </select>
         </div>
         <div id="editor" contenteditable="true"></div>
+        
+        <label>Attachment</label>
+        <input type="file" id="fileInput">
 
-        <div class="file-section">
-            <label>Attach File (Optional)</label>
-            <input type="file" id="fileInput">
-        </div>
-
-        <button class="send-btn" id="sendBtn" onclick="sendToDiscord()">Send to Discord</button>
+        <button class="send-btn" id="sendBtn" onclick="sendToDiscord()">Send Message</button>
+        <div id="status"></div>
     </div>
 </div>
 
@@ -123,7 +111,7 @@
         savedHooks.forEach((hook, index) => {
             const chip = document.createElement('div');
             chip.className = 'webhook-chip';
-            chip.innerHTML = `<span onclick="document.getElementById('webhookUrl').value='${hook.url}'">${hook.name}</span> <span onclick="deleteHook(${index})">×</span>`;
+            chip.innerHTML = `<span onclick="document.getElementById('webhookUrl').value='${hook.url}'">${hook.name}</span> <span onclick="deleteHook(${index})" style="margin-left:5px; opacity:0.5">×</span>`;
             list.appendChild(chip);
         });
     }
@@ -149,7 +137,10 @@
         const url = document.getElementById('webhookUrl').value;
         const editor = document.getElementById('editor');
         const fileInput = document.getElementById('fileInput');
+        const ovName = document.getElementById('overrideName').value;
+        const ovAvatar = document.getElementById('overrideAvatar').value;
         const btn = document.getElementById('sendBtn');
+        const status = document.getElementById('status');
 
         let content = editor.innerHTML
             .replace(/<h1>(.*?)<\/h1>/g, "# $1\n")
@@ -165,38 +156,40 @@
             .replace(/&nbsp;/g, " ")
             .replace(/<[^>]*>/g, ""); 
 
-        if (!url) return alert("Please select a webhook.");
+        if (!url) return alert("Select a webhook!");
 
         btn.disabled = true;
-        btn.innerText = "Sending...";
+        status.innerText = "⏳ Sending...";
+        status.style.color = "var(--text-muted)";
 
         const formData = new FormData();
+        const payload = { content: content };
         
-        // Discord needs the text content inside a 'payload_json' field when sending files
-        formData.append('payload_json', JSON.stringify({ content: content }));
+        if (ovName) payload.username = ovName;
+        if (ovAvatar) payload.avatar_url = ovAvatar;
 
+        formData.append('payload_json', JSON.stringify(payload));
         if (fileInput.files.length > 0) {
             formData.append('file', fileInput.files[0]);
         }
 
         try {
-            const res = await fetch(url, {
-                method: 'POST',
-                body: formData // No headers needed, Fetch handles multipart/form-data
-            });
-
-            if (res.ok) {
-                alert("Sent successfully!");
-                editor.innerHTML = "";
-                fileInput.value = "";
-            } else {
-                alert("Error sending. Check your webhook URL.");
+            const res = await fetch(url, { method: 'POST', body: formData });
+            if (res.ok) { 
+                // CRITICAL: We clear the message and file, BUT keep Name, PFP, and URL.
+                editor.innerHTML = ""; 
+                fileInput.value = ""; 
+                status.innerText = "✅ Message Sent!";
+                status.style.color = "var(--success)";
+                setTimeout(() => status.innerText = "", 3000);
+            } else { 
+                status.innerText = "❌ Error: Check URL or file size.";
+                status.style.color = "#f23f43";
             }
-        } catch (e) {
-            alert("Connection error.");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "Send to Discord";
+        } catch (e) { 
+            status.innerText = "❌ Connection failed.";
+        } finally { 
+            btn.disabled = false; 
         }
     }
 
