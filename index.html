@@ -15,11 +15,10 @@
             --text-muted: #949ba4;
             --discord-blurple: #5865f2;
             --discord-hover: #4752c4;
-            --danger: #da373c;
         }
 
         body {
-            font-family: 'gg sans', 'Segoe UI', sans-serif;
+            font-family: 'gg sans', sans-serif;
             background-color: var(--bg-main);
             color: var(--text-main);
             display: flex;
@@ -37,49 +36,42 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
 
-        h3 { margin-top: 0; color: white; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+        h3 { margin-top: 0; color: white; font-size: 18px; }
         label { display: block; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
 
-        input[type="text"] {
+        input[type="text"], input[type="file"] {
             width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 4px;
             border: 1px solid transparent; background: var(--bg-input); color: white; box-sizing: border-box; outline: none;
         }
-        input:focus { border-color: var(--discord-blurple); }
 
-        /* Webhook Manager Styles */
         .save-row { display: flex; gap: 8px; margin-bottom: 15px; }
         .webhook-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; border-top: 1px solid #3f4147; padding-top: 15px; }
         .webhook-chip {
             background: #4e5058; padding: 6px 12px; border-radius: 15px; font-size: 13px;
-            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
         }
         .webhook-chip:hover { background: var(--discord-blurple); }
-        .webhook-chip .del { color: var(--text-muted); font-weight: bold; cursor: pointer; }
-        .webhook-chip .del:hover { color: white; }
 
-        /* Editor Styles */
         .toolbar {
             display: flex; gap: 8px; background: #232428; padding: 10px;
             border-radius: 8px 8px 0 0; align-items: center;
         }
         .toolbar button, .toolbar select {
-            background: #4e5058; color: white; border: none; padding: 6px 10px;
-            border-radius: 4px; cursor: pointer; font-size: 13px;
+            background: #4e5058; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer;
         }
+
         #editor { 
             min-height: 150px; background: var(--bg-editor); padding: 16px;
-            border-radius: 0 0 8px 8px; outline: none; line-height: 1.6;
-            margin-bottom: 15px; font-size: 15px;
+            border-radius: 0 0 8px 8px; outline: none; line-height: 1.6; margin-bottom: 15px;
         }
+
+        .file-section { margin-bottom: 20px; padding: 10px; background: #232428; border-radius: 8px; }
 
         .send-btn {
             background: var(--discord-blurple); color: white; width: 100%;
-            border: none; padding: 14px; border-radius: 4px; font-weight: bold;
-            cursor: pointer; font-size: 16px; transition: 0.2s;
+            border: none; padding: 16px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 16px;
         }
         .send-btn:hover { background: var(--discord-hover); }
-
-        .hint { font-size: 11px; color: var(--text-muted); text-align: center; }
     </style>
 </head>
 <body>
@@ -88,16 +80,15 @@
     <div class="card">
         <h3>🔗 Webhook Manager</h3>
         <div class="save-row">
-            <input type="text" id="nickName" placeholder="Name (e.g. Staff Logs)" style="flex: 1; margin: 0;">
-            <input type="text" id="webhookUrl" placeholder="Paste Webhook URL here..." style="flex: 2; margin: 0;">
+            <input type="text" id="nickName" placeholder="Name" style="flex: 1; margin: 0;">
+            <input type="text" id="webhookUrl" placeholder="Webhook URL" style="flex: 2; margin: 0;">
             <button onclick="saveWebhook()" style="background: var(--discord-blurple); color: white; border: none; padding: 0 15px; border-radius: 4px; cursor: pointer;">Save</button>
         </div>
-        <div class="webhook-list" id="webhookList">
-            </div>
+        <div class="webhook-list" id="webhookList"></div>
     </div>
 
     <div class="card">
-        <h3>📝 Message</h3>
+        <h3>📝 Message & Files</h3>
         <div class="toolbar">
             <button onclick="exec('bold')"><b>B</b></button>
             <button onclick="exec('italic')"><i>I</i></button>
@@ -111,8 +102,13 @@
             </select>
         </div>
         <div id="editor" contenteditable="true"></div>
-        <p class="hint">@@ID@@ = User Ping | @ID@ = Role Ping</p>
-        <button class="send-btn" onclick="sendToDiscord()">Send Message</button>
+
+        <div class="file-section">
+            <label>Attach File (Optional)</label>
+            <input type="file" id="fileInput">
+        </div>
+
+        <button class="send-btn" id="sendBtn" onclick="sendToDiscord()">Send to Discord</button>
     </div>
 </div>
 
@@ -123,11 +119,11 @@
 
     function renderHooks() {
         const list = document.getElementById('webhookList');
-        list.innerHTML = savedHooks.length ? '' : '<span style="color:var(--text-muted); font-size:12px;">No saved webhooks.</span>';
+        list.innerHTML = '';
         savedHooks.forEach((hook, index) => {
             const chip = document.createElement('div');
             chip.className = 'webhook-chip';
-            chip.innerHTML = `<span onclick="loadHook('${hook.url}')">${hook.name}</span> <span class="del" onclick="deleteHook(${index})">×</span>`;
+            chip.innerHTML = `<span onclick="document.getElementById('webhookUrl').value='${hook.url}'">${hook.name}</span> <span onclick="deleteHook(${index})">×</span>`;
             list.appendChild(chip);
         });
     }
@@ -135,14 +131,13 @@
     function saveWebhook() {
         const name = document.getElementById('nickName').value;
         const url = document.getElementById('webhookUrl').value;
-        if (!name || !url) return alert("Enter both name and URL");
-        savedHooks.push({ name, url });
-        localStorage.setItem('discordHooks', JSON.stringify(savedHooks));
-        renderHooks();
-        document.getElementById('nickName').value = '';
+        if (name && url) {
+            savedHooks.push({ name, url });
+            localStorage.setItem('discordHooks', JSON.stringify(savedHooks));
+            renderHooks();
+            document.getElementById('nickName').value = '';
+        }
     }
-
-    function loadHook(url) { document.getElementById('webhookUrl').value = url; }
 
     function deleteHook(index) {
         savedHooks.splice(index, 1);
@@ -153,6 +148,8 @@
     async function sendToDiscord() {
         const url = document.getElementById('webhookUrl').value;
         const editor = document.getElementById('editor');
+        const fileInput = document.getElementById('fileInput');
+        const btn = document.getElementById('sendBtn');
 
         let content = editor.innerHTML
             .replace(/<h1>(.*?)<\/h1>/g, "# $1\n")
@@ -161,28 +158,49 @@
             .replace(/<i>(.*?)<\/i>|<em>(.*?)<\/em>/g, "*$1$2*")
             .replace(/<u>(.*?)<\/u>/g, "__$1__")
             .replace(/<s>(.*?)<\/s>|<strike>(.*?)<\/strike>/g, "~~$1$2~~")
-            .replace(/@@(\d+)@@/g, "<@$1>") // User Ping
-            .replace(/@(\d+)@/g, "<@&$1>")  // Role Ping
+            .replace(/@@(\d+)@@/g, "<@$1>")
+            .replace(/@(\d+)@/g, "<@&$1>")
             .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
             .replace(/<br>/g, "\n")
             .replace(/&nbsp;/g, " ")
             .replace(/<[^>]*>/g, ""); 
 
-        if (!url || !content.trim()) return alert("Select a webhook and type a message!");
+        if (!url) return alert("Please select a webhook.");
+
+        btn.disabled = true;
+        btn.innerText = "Sending...";
+
+        const formData = new FormData();
+        
+        // Discord needs the text content inside a 'payload_json' field when sending files
+        formData.append('payload_json', JSON.stringify({ content: content }));
+
+        if (fileInput.files.length > 0) {
+            formData.append('file', fileInput.files[0]);
+        }
 
         try {
             const res = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: content })
+                body: formData // No headers needed, Fetch handles multipart/form-data
             });
-            if (res.ok) { alert("Sent!"); editor.innerHTML = ""; }
-            else { alert("Failed to send."); }
-        } catch (e) { alert("Network error."); }
+
+            if (res.ok) {
+                alert("Sent successfully!");
+                editor.innerHTML = "";
+                fileInput.value = "";
+            } else {
+                alert("Error sending. Check your webhook URL.");
+            }
+        } catch (e) {
+            alert("Connection error.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Send to Discord";
+        }
     }
 
     renderHooks();
 </script>
-
 </body>
 </html>
