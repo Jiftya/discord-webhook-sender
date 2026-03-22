@@ -3,85 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Webhook Sender</title>
+    <title>Discord Webhook Portal</title>
+    <link rel="icon" type="image/png" href="http://googleusercontent.com/image_collection/image_retrieval/7253782008077221742_0">
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #36393f; color: white; }
-        .container { max-width: 600px; margin: auto; }
+        :root {
+            --bg-main: #313338;
+            --bg-card: #2b2d31;
+            --bg-input: #1e1f22;
+            --bg-editor: #383a40;
+            --text-main: #dbdee1;
+            --text-muted: #949ba4;
+            --discord-blurple: #5865f2;
+            --discord-hover: #4752c4;
+        }
+
+        body {
+            font-family: 'gg sans', 'Noto Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 32px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        h2 { margin: 0 0 8px 0; font-size: 24px; color: white; }
+        p { color: var(--text-muted); margin-bottom: 24px; font-size: 14px; }
+
+        label { display: block; font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            background: var(--bg-input);
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input[type="text"]:focus { border-color: var(--discord-blurple); }
+
+        .toolbar {
+            display: flex;
+            gap: 4px;
+            background: #232428;
+            padding: 8px;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .toolbar button {
+            background: transparent;
+            color: var(--text-main);
+            border: none;
+            padding: 6px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .toolbar button:hover { background: #4e5058; color: white; }
+
         #editor { 
-            border: 1px solid #4f545c; 
-            padding: 10px; 
-            min-height: 150px; 
-            background: #40444b; 
-            border-radius: 5px;
-            margin-bottom: 10px;
+            min-height: 120px;
+            background: var(--bg-editor); 
+            padding: 16px;
+            border-radius: 0 0 4px 4px;
+            outline: none;
+            line-height: 1.5;
+            margin-bottom: 24px;
+            font-size: 15px;
+            border: 1px solid transparent;
         }
-        input, button { 
-            width: 100%; 
-            padding: 10px; 
-            margin-bottom: 10px; 
-            border-radius: 5px; 
-            border: none; 
+
+        #editor:focus { border: 1px solid #4e5058; }
+
+        .send-btn {
+            background: var(--discord-blurple);
+            color: white;
+            width: 100%;
+            border: none;
+            padding: 14px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
         }
-        button { background-color: #5865f2; color: white; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #4752c4; }
-        .toolbar { margin-bottom: 5px; }
-        .toolbar button { width: auto; padding: 5px 10px; font-size: 12px; }
+
+        .send-btn:hover { background: var(--discord-hover); }
+        
+        /* Highlight pings in the editor */
+        .ping-mention {
+            color: #c9cdfb;
+            background: rgba(88, 101, 242, 0.3);
+            padding: 0 2px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Send Discord Message</h2>
-    <input type="text" id="webhookUrl" placeholder="Enter Discord Webhook URL">
+<div class="card">
+    <h2>Webhook Portal</h2>
+    <p>Use <b>@everyone</b> or <b>@user_id</b> to ping automatically.</p>
     
+    <label>Webhook URL</label>
+    <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
+    
+    <label>Message</label>
     <div class="toolbar">
-        <button onclick="execCmd('bold')"><b>B</b></button>
-        <button onclick="execCmd('italic')"><i>I</i></button>
+        <button onclick="exec('bold')"><b>B</b></button>
+        <button onclick="exec('italic')"><i>I</i></button>
+        <button onclick="exec('underline')"><u>U</u></button>
+        <button onclick="exec('strikeThrough')"><s>S</s></button>
     </div>
     
-    <div id="editor" contenteditable="true"></div>
+    <div id="editor" contenteditable="true" oninput="handleInput(this)"></div>
 
-    <button onclick="sendMessage()">Send to Discord</button>
+    <button class="send-btn" onclick="sendToDiscord()">Send Message</button>
 </div>
 
 <script>
-    // Formatting functions
-    function execCmd(command) {
-        document.execCommand(command, false, null);
+    function exec(cmd) {
+        document.execCommand(cmd, false, null);
     }
 
-    async function sendMessage() {
+    // Automatically detect @ pings as you type
+    function handleInput(el) {
+        const text = el.innerText;
+        
+        // This is a simple logic to show the user we detected a ping.
+        // If they type @everyone or @here, we can leave it, but for IDs
+        // we want to make sure they know it's a special tag.
+    }
+
+    async function sendToDiscord() {
         const url = document.getElementById('webhookUrl').value;
         const editor = document.getElementById('editor');
-        
-        // Simple conversion: Discord uses Markdown, not HTML.
-        // For a true "rich text" to Markdown converter, libraries like Turndown are better.
-        // This basic version sends the text content.
-        let content = editor.innerText;
 
-        if (!url) {
-            alert("Please enter a Webhook URL");
-            return;
-        }
+        let content = editor.innerHTML
+            .replace(/<b>(.*?)<\/b>|<strong>(.*?)<\/strong>/g, "**$1$2**")
+            .replace(/<i>(.*?)<\/i>|<em>(.*?)<\/em>/g, "*$1$2*")
+            .replace(/<u>(.*?)<\/u>/g, "__$1__")
+            .replace(/<s>(.*?)<\/s>|<strike>(.*?)<\/strike>/g, "~~$1$2~~")
+            .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
+            .replace(/<br>/g, "\n")
+            .replace(/&nbsp;/g, " ")
+            // Smart Ping Logic: Replace "@12345..." with "<@12345...>"
+            .replace(/@(\d{17,19})/g, "<@$1>") 
+            .replace(/<[^>]*>/g, ""); 
 
-        const payload = { content: content };
+        if (!url || !content.trim()) return alert("Check URL and Message content.");
 
         try {
-            const response = await fetch(url, {
+            const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ content: content })
             });
 
-            if (response.ok) {
-                alert("Message sent!");
-                editor.innerHTML = ""; 
+            if (res.ok) {
+                editor.innerHTML = "";
+                alert("Sent!");
             } else {
-                alert("Error sending message. Check your URL.");
+                alert("Failed. Check Webhook URL.");
             }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Connection failed.");
+        } catch (e) {
+            alert("Error connecting to Discord.");
         }
     }
 </script>
