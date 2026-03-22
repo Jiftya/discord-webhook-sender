@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webhook Commander</title>
+    <title>Webhook Dashboard</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/5968/5968756.png">
     <style>
         :root {
@@ -28,7 +28,7 @@
             margin: 0; display: flex; height: 100vh; overflow: hidden;
         }
 
-        /* Sidebar - Channels & Templates */
+        /* Sidebar - Profiles & Templates */
         .sidebar { 
             width: 280px; background: var(--bg-sidebar); display: flex; flex-direction: column;
             border-right: 1px solid var(--border);
@@ -58,7 +58,7 @@
         .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--text-muted); }
         .btn-ghost:hover { color: white; border-color: white; }
 
-        /* Channel/Template Chips */
+        /* Chips */
         .chip { 
             background: var(--bg-darker); padding: 8px 12px; border-radius: 4px; margin-bottom: 6px;
             display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;
@@ -68,7 +68,7 @@
         .chip-actions { display: none; gap: 5px; }
         .chip:hover .chip-actions { display: flex; }
 
-        /* Editor Area */
+        /* Workspace */
         .workspace { max-width: 900px; width: 100%; margin: 0 auto; padding: 30px 20px; }
         .editor-wrap { background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
         .toolbar { background: #2b2d31; padding: 8px; display: flex; gap: 5px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
@@ -76,18 +76,13 @@
         .toolbar button:hover { background: #4e5058; color: white; }
         
         #editor { min-height: 250px; padding: 20px; outline: none; line-height: 1.6; font-size: 15px; background: #383a40; }
-
-        /* Stats Footer */
         .editor-footer { background: #2b2d31; padding: 8px 15px; display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
 
-        /* Visual Feedback */
-        .spoiler { background: #1e1f22; color: #1e1f22; border-radius: 3px; }
-        blockquote { border-left: 4px solid #4e5058; padding-left: 10px; margin: 5px 0; color: var(--text-muted); }
-        code { background: #232428; padding: 2px 4px; border-radius: 4px; font-family: monospace; }
-
-        /* Identity Overlay */
-        .identity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-
+        .identity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; }
+        
+        /* Toggle Styling */
+        .toggle-row { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+        
         #status-toast {
             position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; 
             border-radius: 4px; color: white; font-weight: bold; transform: translateY(100px);
@@ -100,61 +95,61 @@
 
     <div class="sidebar">
         <div class="sidebar-header">
-            <h2 style="font-size: 18px; margin: 0; color: white;">Webhook Pro</h2>
+            <h2 style="font-size: 18px; margin: 0; color: white;">Webhook Commander</h2>
         </div>
         
         <div class="sidebar-content">
-            <span class="section-label">Channels</span>
-            <div id="channelList"></div>
-            <button class="btn btn-ghost" style="width: 100%; margin-top: 10px;" onclick="promptChannel()">+ Add Channel</button>
+            <span class="section-label">Profiles (Webhooks + ID)</span>
+            <div id="profileList"></div>
+            <button class="btn btn-ghost" style="width: 100%; margin-top: 10px;" onclick="addProfile()">+ New Profile</button>
 
             <div style="margin-top: 30px;">
-                <span class="section-label">Templates</span>
+                <span class="section-label">Templates (Messages)</span>
                 <div id="templateList"></div>
-                <button class="btn btn-ghost" style="width: 100%; margin-top: 10px;" onclick="saveAsTemplate()">+ Save Current as Template</button>
+                <button class="btn btn-ghost" style="width: 100%; margin-top: 10px;" onclick="saveAsTemplate()">+ Save to Template</button>
             </div>
         </div>
     </div>
 
     <div class="main">
         <div class="top-nav">
-            <span id="activeChannelName">No Channel Selected</span>
+            <span id="activeProfileName">Select a Profile</span>
         </div>
 
         <div class="workspace">
             <div class="card">
-                <span class="section-label">Webhook Identity Overrides</span>
+                <span class="section-label">Profile Identity</span>
                 <div class="identity-grid">
                     <div>
-                        <label style="font-size: 11px; color: var(--text-muted);">DISPLAY NAME</label>
-                        <input type="text" id="botName" placeholder="Default" oninput="saveDraft()">
+                        <label style="font-size: 11px; color: var(--text-muted);">BOT NAME</label>
+                        <input type="text" id="botName" placeholder="Default Webhook Name" oninput="saveDraft()">
                     </div>
                     <div>
                         <label style="font-size: 11px; color: var(--text-muted);">AVATAR URL</label>
                         <input type="text" id="botAvatar" placeholder="https://..." oninput="saveDraft()">
                     </div>
                 </div>
+                <div class="toggle-row">
+                    <input type="checkbox" id="linkIdentity" checked>
+                    <span>Automatically update this Profile's Identity when saving</span>
+                </div>
             </div>
 
             <div class="editor-wrap">
                 <div class="toolbar">
-                    <button onclick="exec('bold')" title="Bold"><b>B</b></button>
-                    <button onclick="exec('italic')" title="Italic"><i>i</i></button>
-                    <button onclick="exec('underline')" title="Underline"><u>U</u></button>
-                    <button onclick="exec('strikeThrough')" title="Strikethrough"><s>S</s></button>
+                    <button onclick="exec('bold')"><b>B</b></button>
+                    <button onclick="exec('italic')"><i>i</i></button>
+                    <button onclick="exec('underline')"><u>U</u></button>
+                    <button onclick="exec('strikeThrough')"><s>S</s></button>
                     <span style="border-left: 1px solid #4e5058; margin: 0 5px;"></span>
-                    <button onclick="applySpoiler()" title="Spoiler">||</button>
-                    <button onclick="exec('formatBlock', 'blockquote')" title="Quote">"</button>
-                    <button onclick="applyCode()" title="Inline Code">`</button>
-                    <span style="border-left: 1px solid #4e5058; margin: 0 5px;"></span>
-                    <button onclick="exec('formatBlock', 'h1')" title="Big Header">H1</button>
-                    <button onclick="exec('formatBlock', 'h2')" title="Med Header">H2</button>
-                    <button onclick="exec('formatBlock', 'p')" title="Normal">P</button>
+                    <button onclick="exec('formatBlock', 'blockquote')">"</button>
+                    <button onclick="exec('formatBlock', 'h1')">H1</button>
+                    <button onclick="exec('formatBlock', 'p')">P</button>
                 </div>
                 <div id="editor" contenteditable="true" oninput="handleInput()"></div>
                 <div class="editor-footer">
                     <span id="charCount">0 / 2000</span>
-                    <span>Format: Markdown / HTML Mixed</span>
+                    <span>Supports Discord Markdown & Role/User Pings</span>
                 </div>
             </div>
 
@@ -173,14 +168,13 @@
     <div id="status-toast"></div>
 
     <script>
-        let channels = JSON.parse(localStorage.getItem('wh_channels') || '[]');
+        let profiles = JSON.parse(localStorage.getItem('wh_profiles') || '[]');
         let templates = JSON.parse(localStorage.getItem('wh_templates') || '[]');
         let activeHook = '';
 
         window.onload = () => {
-            renderChannels();
+            renderProfiles();
             renderTemplates();
-            // Load Draft
             document.getElementById('editor').innerHTML = localStorage.getItem('wh_draft_content') || '';
             document.getElementById('botName').value = localStorage.getItem('wh_draft_name') || '';
             document.getElementById('botAvatar').value = localStorage.getItem('wh_draft_avatar') || '';
@@ -210,61 +204,53 @@
             localStorage.setItem('wh_draft_avatar', document.getElementById('botAvatar').value);
         }
 
-        function applySpoiler() {
-            const sel = window.getSelection();
-            const span = document.createElement("span");
-            span.className = "spoiler";
-            span.textContent = sel.toString() || "spoiler";
-            const range = sel.getRangeAt(0);
-            range.deleteContents();
-            range.insertNode(span);
-            handleInput();
-        }
-
-        function applyCode() {
-            const sel = window.getSelection();
-            const el = document.createElement("code");
-            el.textContent = sel.toString() || "code";
-            const range = sel.getRangeAt(0);
-            range.deleteContents();
-            range.insertNode(el);
-            handleInput();
-        }
-
-        // Channel Logic
-        function promptChannel() {
-            const name = prompt("Channel Nickname:");
+        // Profile Logic
+        function addProfile() {
+            const name = prompt("Profile Name (e.g. Staff Announcements):");
             const url = prompt("Webhook URL:");
             if(name && url) {
-                channels.push({name, url});
-                localStorage.setItem('wh_channels', JSON.stringify(channels));
-                renderChannels();
+                const linkId = document.getElementById('linkIdentity').checked;
+                profiles.push({
+                    name, 
+                    url,
+                    botName: linkId ? document.getElementById('botName').value : '',
+                    botAvatar: linkId ? document.getElementById('botAvatar').value : ''
+                });
+                localStorage.setItem('wh_profiles', JSON.stringify(profiles));
+                renderProfiles();
             }
         }
 
-        function renderChannels() {
-            const container = document.getElementById('channelList');
+        function renderProfiles() {
+            const container = document.getElementById('profileList');
             container.innerHTML = '';
-            channels.forEach((c, i) => {
+            profiles.forEach((p, i) => {
                 const div = document.createElement('div');
-                div.className = `chip ${activeHook === c.url ? 'active' : ''}`;
-                div.innerHTML = `<span># ${c.name}</span>
-                    <div class="chip-actions"><span onclick="deleteChannel(${i})">×</span></div>`;
-                div.onclick = () => selectChannel(c);
+                div.className = `chip ${activeHook === p.url ? 'active' : ''}`;
+                div.innerHTML = `<span>👤 ${p.name}</span>
+                    <div class="chip-actions"><span onclick="deleteProfile(${i})">×</span></div>`;
+                div.onclick = () => selectProfile(p);
                 container.appendChild(div);
             });
         }
 
-        function selectChannel(c) {
-            activeHook = c.url;
-            document.getElementById('activeChannelName').innerText = `# ${c.name}`;
-            renderChannels();
+        function selectProfile(p) {
+            activeHook = p.url;
+            document.getElementById('activeProfileName').innerText = `Profile: ${p.name}`;
+            
+            // Auto-load saved identity from profile if it exists
+            if (p.botName) document.getElementById('botName').value = p.botName;
+            if (p.botAvatar) document.getElementById('botAvatar').value = p.botAvatar;
+            
+            saveDraft();
+            renderProfiles();
         }
 
-        function deleteChannel(i) {
-            channels.splice(i, 1);
-            localStorage.setItem('wh_channels', JSON.stringify(channels));
-            renderChannels();
+        function deleteProfile(i) {
+            event.stopPropagation();
+            profiles.splice(i, 1);
+            localStorage.setItem('wh_profiles', JSON.stringify(profiles));
+            renderProfiles();
         }
 
         // Template Logic
@@ -301,6 +287,7 @@
         }
 
         function deleteTemplate(i) {
+            event.stopPropagation();
             templates.splice(i, 1);
             localStorage.setItem('wh_templates', JSON.stringify(templates));
             renderTemplates();
@@ -315,47 +302,27 @@
         }
 
         function clearEditor() {
-            if(confirm("Wipe editor?")) {
+            if(confirm("Wipe editor and local identity draft?")) {
                 document.getElementById('editor').innerHTML = '';
+                document.getElementById('botName').value = '';
+                document.getElementById('botAvatar').value = '';
                 document.getElementById('fileInput').value = '';
                 handleInput();
             }
         }
 
         async function send() {
-            if(!activeHook) return toast("Select a channel first!", "danger");
+            if(!activeHook) return toast("Select a profile first!", "danger");
             
             const btn = document.getElementById('sendBtn');
             btn.disabled = true;
             btn.innerText = "SENDING...";
 
             const editor = document.getElementById('editor');
-            
-            // Smart Markdown Parser
-            const wrap = (html, tag, sym) => {
-                const rx = new RegExp(`<${tag}[^>]*>(.*?)</${tag}>`, 'gi');
-                return html.replace(rx, (m, c) => `${c.startsWith(' ') ? ' ':''}${sym}${c.trim()}${sym}${c.endsWith(' ') ? ' ':''}`);
-            };
-
             let content = editor.innerHTML
                 .replace(/<h1>(.*?)<\/h1>/g, "# $1\n")
-                .replace(/<h2>(.*?)<\/h2>/g, "## $1\n")
-                .replace(/<h3>(.*?)<\/h3>/g, "### $1\n")
-                .replace(/<blockquote>(.*?)<\/blockquote>/g, "> $1\n");
-
-            content = wrap(content, 'b|strong', '**');
-            content = wrap(content, 'i|em', '*');
-            content = wrap(content, 'u', '__');
-            content = wrap(content, 's|strike', '~~');
-            content = wrap(content, 'code', '`');
-            content = content.replace(/<span class="spoiler"[^>]*>(.*?)<\/span>/gi, (m, c) => `||${c.trim()}||`);
-
-            content = content
-                .replace(/@@(\d+)@@/g, "<@$1>")
-                .replace(/@(\d+)@/g, "<@&$1>")
                 .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
                 .replace(/<br>/g, "\n")
-                .replace(/&nbsp;/g, " ")
                 .replace(/<[^>]*>/g, "").trim();
 
             const formData = new FormData();
@@ -372,10 +339,9 @@
                 if(res.ok) {
                     toast("Message sent!");
                     editor.innerHTML = '';
-                    document.getElementById('fileInput').value = '';
                     handleInput();
-                } else { toast("Error: Check file size or URL.", "danger"); }
-            } catch(e) { toast("Connection failed.", "danger"); }
+                } else { toast("Discord rejected the message.", "danger"); }
+            } catch(e) { toast("Network error.", "danger"); }
             finally {
                 btn.disabled = false;
                 btn.innerText = "SEND TO DISCORD";
