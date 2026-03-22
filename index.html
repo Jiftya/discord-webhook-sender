@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webhook Dashboard</title>
+    <title>Webhook Commander</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/5968/5968756.png">
     <style>
         :root {
@@ -35,10 +35,19 @@
         .profile-icon {
             width: 48px; height: 48px; border-radius: 50%; background: var(--bg-sidebar);
             cursor: pointer; transition: 0.2s; background-size: cover; background-position: center;
-            border: 2px solid transparent;
+            border: 2px solid transparent; position: relative;
         }
         .profile-icon:hover { border-radius: 30%; border-color: var(--blurple); }
         
+        /* Hover Tooltip */
+        .profile-icon::after {
+            content: attr(data-name); position: absolute; left: 60px; top: 50%;
+            transform: translateY(-50%); background: black; color: white;
+            padding: 5px 10px; border-radius: 5px; font-size: 12px; white-space: nowrap;
+            opacity: 0; pointer-events: none; transition: 0.2s; z-index: 100;
+        }
+        .profile-icon:hover::after { opacity: 1; left: 70px; }
+
         .save-icon {
             width: 48px; height: 48px; border-radius: 50%; background: var(--bg-sidebar);
             display: flex; align-items: center; justify-content: center; font-size: 24px;
@@ -66,6 +75,11 @@
 
         #editor { min-height: 200px; padding: 20px; outline: none; line-height: 1.6; background: #383a40; font-size: 15px; color: white; }
         
+        /* Attachments List */
+        #attachmentList { display: flex; gap: 10px; padding: 10px; background: rgba(0,0,0,0.1); flex-wrap: wrap; }
+        .file-pill { background: var(--bg-darker); padding: 5px 10px; border-radius: 4px; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+        .file-pill span { color: var(--danger); cursor: pointer; font-weight: bold; }
+
         .discord-preview { 
             background: #2b2d31; padding: 15px; border-radius: 8px; display: flex; gap: 14px; 
             border: 1px solid var(--border); margin-top: 10px;
@@ -123,9 +137,12 @@
                     <div class="sep"></div>
                     <button onclick="exec('formatBlock', 'blockquote')">Quote</button>
                     <button onclick="applyCode()">Code</button>
+                    <button onclick="document.getElementById('fileInput').click()">📎</button>
                     <button onclick="clearEditor()" style="margin-left:auto; color:var(--danger)">Wipe</button>
                 </div>
                 <div id="editor" contenteditable="true" oninput="updateUI()"></div>
+                <div id="attachmentList"></div>
+                <input type="file" id="fileInput" style="display:none" multiple onchange="handleFiles(this.files)">
             </div>
 
             <span class="section-label">Preview</span>
@@ -144,7 +161,8 @@
     <div id="toast"></div>
 
     <script>
-        let profiles = JSON.parse(localStorage.getItem('wh_vault_final_v6') || '[]');
+        let profiles = JSON.parse(localStorage.getItem('wh_vault_final_v7') || '[]');
+        let uploadedFiles = [];
 
         window.onload = () => {
             renderSidebar();
@@ -167,6 +185,21 @@
             localStorage.setItem('d_msg', document.getElementById('editor').innerHTML);
         }
 
+        function handleFiles(files) {
+            for (let file of files) {
+                uploadedFiles.push(file);
+                const pill = document.createElement('div');
+                pill.className = 'file-pill';
+                pill.innerHTML = `${file.name} <span onclick="removeFile('${file.name}', this)">✕</span>`;
+                document.getElementById('attachmentList').appendChild(pill);
+            }
+        }
+
+        function removeFile(name, el) {
+            uploadedFiles = uploadedFiles.filter(f => f.name !== name);
+            el.parentElement.remove();
+        }
+
         function exec(cmd, val = null) { document.execCommand(cmd, false, val); updateUI(); }
 
         function applyCode() {
@@ -181,14 +214,23 @@
         }
 
         function clearEditor() {
-            if(confirm("Wipe editor?")) { document.getElementById('editor').innerHTML = ''; updateUI(); }
+            if(confirm("Wipe editor?")) { 
+                document.getElementById('editor').innerHTML = ''; 
+                document.getElementById('attachmentList').innerHTML = '';
+                uploadedFiles = [];
+                updateUI(); 
+            }
         }
 
         function saveToVault() {
             const url = document.getElementById('webhookUrl').value;
             if(!url) return showToast("No URL!", false);
-            profiles.push({ url, name: document.getElementById('botName').value, pfp: document.getElementById('botAvatar').value });
-            localStorage.setItem('wh_vault_final_v6', JSON.stringify(profiles));
+            profiles.push({ 
+                url, 
+                name: document.getElementById('botName').value || "Unnamed", 
+                pfp: document.getElementById('botAvatar').value 
+            });
+            localStorage.setItem('wh_vault_final_v7', JSON.stringify(profiles));
             renderSidebar();
             showToast("Saved!");
         }
@@ -200,6 +242,8 @@
                 const icon = document.createElement('div');
                 icon.className = 'profile-icon';
                 icon.style.backgroundImage = `url('${p.pfp || 'https://cdn.discordapp.com/embed/avatars/1.png'}')`;
+                icon.setAttribute('data-name', p.name); // Hover Name
+                
                 icon.onclick = () => {
                     document.getElementById('webhookUrl').value = p.url;
                     document.getElementById('botName').value = p.name;
@@ -208,7 +252,7 @@
                 };
                 icon.oncontextmenu = (e) => {
                     e.preventDefault();
-                    if(confirm("Delete?")) { profiles.splice(i, 1); localStorage.setItem('wh_vault_final_v6', JSON.stringify(profiles)); renderSidebar(); }
+                    if(confirm("Delete?")) { profiles.splice(i, 1); localStorage.setItem('wh_vault_final_v7', JSON.stringify(profiles)); renderSidebar(); }
                 };
                 container.appendChild(icon);
             });
@@ -226,14 +270,15 @@
             const url = document.getElementById('webhookUrl').value;
             if(!url) return showToast("Missing URL!", false);
 
-            let html = document.getElementById('editor').innerHTML;
+            const btn = document.querySelector('.btn-send');
+            btn.disabled = true;
+            btn.innerText = "PREPARING...";
 
-            // SMART SHRINKWRAP: Moves spaces OUT of the tags so the symbols touch the letters
+            let html = document.getElementById('editor').innerHTML;
             let content = html
                 .replace(/<h1>\s*(.*?)\s*<\/h1>/g, "# $1\n")
                 .replace(/<h2>\s*(.*?)\s*<\/h2>/g, "## $1\n")
                 .replace(/<h3>\s*(.*?)\s*<\/h3>/g, "### $1\n")
-                // Pulls spaces outside the bold/italic markers
                 .replace(/<b>(\s*)(.*?)(\s*)<\/b>/g, "$1**$2**$3")
                 .replace(/<strong>(\s*)(.*?)(\s*)<\/strong>/g, "$1**$2**$3")
                 .replace(/<i>(\s*)(.*?)(\s*)<\/i>/g, "$1*$2*$3")
@@ -246,19 +291,32 @@
                 .replace(/<br>/g, "\n")
                 .replace(/<[^>]*>/g, "").trim();
 
+            const formData = new FormData();
+            formData.append('payload_json', JSON.stringify({
+                content: content,
+                username: document.getElementById('botName').value,
+                avatar_url: document.getElementById('botAvatar').value
+            }));
+
+            uploadedFiles.forEach((file, index) => {
+                formData.append(`file${index}`, file);
+            });
+
             try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        content: content,
-                        username: document.getElementById('botName').value,
-                        avatar_url: document.getElementById('botAvatar').value
-                    })
-                });
-                if(res.ok) { showToast("Sent!"); document.getElementById('editor').innerHTML = ''; updateUI(); }
+                const res = await fetch(url, { method: 'POST', body: formData });
+                if(res.ok) { 
+                    showToast("Sent!"); 
+                    document.getElementById('editor').innerHTML = ''; 
+                    document.getElementById('attachmentList').innerHTML = '';
+                    uploadedFiles = [];
+                    updateUI(); 
+                }
                 else showToast("Error", false);
             } catch(e) { showToast("Failed", false); }
+            finally {
+                btn.disabled = false;
+                btn.innerText = "SEND TO DISCORD";
+            }
         }
     </script>
 </body>
