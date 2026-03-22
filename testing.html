@@ -3,93 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webhook Commander</title>
+    <title>Webhook Commander Pro</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/5968/5968756.png">
     <style>
         :root {
-            --bg-darker: #1e1f22;
-            --bg-sidebar: #2b2d31;
+            --bg-darkest: #111214;
+            --bg-sidebar: #1e1f22;
             --bg-main: #313338;
-            --bg-card: #383a40;
+            --bg-card: #2b2d31;
+            --bg-input: #1e1f22;
             --text-normal: #dbdee1;
             --text-muted: #949ba4;
             --blurple: #5865f2;
             --blurple-hover: #4752c4;
             --danger: #fa777c;
             --success: #23a559;
-            --border: rgba(0,0,0,0.2);
+            --border: rgba(0,0,0,0.3);
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--bg-sidebar) transparent; }
         body { 
-            font-family: 'gg sans', sans-serif; 
-            background-color: var(--bg-darker); color: var(--text-normal);
+            font-family: 'gg sans', 'Noto Sans', sans-serif; 
+            background-color: var(--bg-darkest); color: var(--text-normal);
             margin: 0; display: flex; height: 100vh; overflow: hidden;
         }
 
+        /* Sidebar */
         .sidebar { 
-            width: 72px; background: var(--bg-darker); display: flex; flex-direction: column; 
-            align-items: center; padding: 12px 0; gap: 8px; border-right: 1px solid var(--border);
-            overflow-y: auto;
+            width: 72px; background: var(--bg-sidebar); display: flex; flex-direction: column; 
+            align-items: center; padding: 12px 0; gap: 12px; border-right: 1px solid var(--border);
+            overflow-y: auto; z-index: 10;
         }
         .profile-icon {
-            width: 48px; height: 48px; border-radius: 50%; background: var(--bg-sidebar);
-            cursor: pointer; transition: 0.2s; background-size: cover; background-position: center;
-            border: 2px solid transparent;
+            width: 48px; height: 48px; border-radius: 50%; background: var(--bg-main);
+            cursor: pointer; transition: var(--transition); background-size: cover; background-position: center;
+            border: 2px solid transparent; position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
-        .profile-icon:hover { border-radius: 30%; border-color: var(--blurple); }
+        .profile-icon:hover { border-radius: 30%; border-color: var(--blurple); transform: translateY(-2px); }
         
-        .save-icon {
-            width: 48px; height: 48px; border-radius: 50%; background: var(--bg-sidebar);
-            display: flex; align-items: center; justify-content: center; font-size: 24px;
-            color: var(--success); cursor: pointer; transition: 0.2s;
+        /* Tooltip */
+        .profile-icon::after {
+            content: attr(data-name); position: absolute; left: 60px; top: 50%;
+            transform: translateY(-50%) scale(0.9); background: #000; color: #fff;
+            padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;
+            white-space: nowrap; opacity: 0; pointer-events: none; transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-        .save-icon:hover { background: var(--success); color: white; border-radius: 30%; }
+        .profile-icon:hover::after { opacity: 1; transform: translateY(-50%) scale(1); left: 70px; }
 
-        .main { flex: 1; background: var(--bg-main); overflow-y: auto; padding: 20px; }
-        .workspace { max-width: 850px; margin: 0 auto; padding-bottom: 50px; }
+        .save-icon {
+            width: 48px; height: 48px; border-radius: 50%; background: var(--bg-card);
+            display: flex; align-items: center; justify-content: center; font-size: 28px;
+            color: var(--success); cursor: pointer; transition: var(--transition);
+        }
+        .save-icon:hover { background: var(--success); color: white; border-radius: 30%; transform: rotate(90deg); }
 
-        .card { background: var(--bg-card); border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid var(--border); }
-        .section-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
+        /* Main Viewport */
+        .main { flex: 1; background: var(--bg-main); overflow-y: auto; padding: 30px 20px; }
+        .workspace { max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+        .section-label { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 0.5px; }
         
         input[type="text"] { 
-            width: 100%; background: var(--bg-darker); border: 1px solid transparent; color: white;
-            padding: 10px; border-radius: 4px; outline: none; margin-bottom: 10px; font-size: 14px;
+            width: 100%; background: var(--bg-input); border: 1px solid transparent; color: white;
+            padding: 12px; border-radius: 6px; outline: none; margin-bottom: 12px; font-size: 14px;
+            transition: border var(--transition);
         }
         input:focus { border-color: var(--blurple); }
 
-        .editor-wrap { background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 15px; }
-        .toolbar { background: #2b2d31; padding: 8px; display: flex; gap: 4px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-        .toolbar button { background: transparent; border: none; color: var(--text-normal); cursor: pointer; font-size: 14px; padding: 5px 10px; border-radius: 3px; }
-        .toolbar button:hover { background: #4e5058; color: white; }
-        .toolbar .sep { width: 1px; height: 20px; background: #4e5058; margin: 0 5px; align-self: center; }
+        .btn-fancy {
+            background: #4e5058; color: white; border: none; padding: 6px 12px; 
+            border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;
+            transition: var(--transition); text-transform: uppercase;
+        }
+        .btn-fancy:hover { background: var(--blurple); }
 
-        #editor { min-height: 200px; padding: 20px; outline: none; line-height: 1.6; background: #383a40; font-size: 15px; color: white; }
+        /* Editor */
+        .editor-wrap { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 20px; }
+        .toolbar { background: #232428; padding: 10px; display: flex; gap: 6px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+        .toolbar button { background: transparent; border: none; color: var(--text-normal); cursor: pointer; font-size: 15px; padding: 6px 10px; border-radius: 4px; transition: 0.1s; }
+        .toolbar button:hover { background: #4e5058; color: white; }
+        .toolbar .sep { width: 1px; height: 20px; background: #4e5058; margin: 0 8px; align-self: center; }
+
+        #editor { min-height: 220px; padding: 20px; outline: none; line-height: 1.6; background: #2b2d31; font-size: 16px; color: #dbdee1; }
         
+        /* Character Count */
+        .editor-footer { display: flex; justify-content: space-between; padding: 8px 20px; background: #232428; font-size: 12px; color: var(--text-muted); }
+
+        /* Attachment Previews */
+        #attachmentList { display: flex; gap: 12px; padding: 12px; background: rgba(0,0,0,0.15); flex-wrap: wrap; }
+        .file-card { 
+            width: 80px; height: 80px; background: var(--bg-input); border-radius: 8px; 
+            position: relative; background-size: cover; background-position: center;
+            border: 1px solid var(--border); overflow: hidden;
+        }
+        .file-card .remove-btn { 
+            position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); 
+            color: var(--danger); width: 20px; height: 20px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold;
+        }
+
+        /* Preview Area */
         .discord-preview { 
-            background: #2b2d31; padding: 15px; border-radius: 8px; display: flex; gap: 14px; 
-            border: 1px solid var(--border); margin-top: 10px;
+            background: #2b2d31; padding: 16px; border-radius: 8px; display: flex; gap: 16px; 
+            border: 1px solid var(--border); margin-top: 12px;
         }
         .prev-pfp { width: 40px; height: 40px; border-radius: 50%; background: var(--blurple); flex-shrink: 0; background-size: cover; background-position: center; }
-        .prev-name { font-weight: 600; color: white; }
-        .prev-tag { background: var(--blurple); font-size: 10px; padding: 1px 4px; border-radius: 3px; color: white; font-weight: bold; margin-left: 5px; }
+        .prev-name { font-weight: 600; color: white; margin-right: 4px; }
+        .prev-tag { background: var(--blurple); font-size: 10px; padding: 1px 4px; border-radius: 3px; color: white; font-weight: bold; position: relative; top: -1px; }
 
         .btn-send { 
-            width: 100%; padding: 18px; border-radius: 8px; border: none; 
-            font-weight: bold; cursor: pointer; transition: 0.2s;
-            background: var(--blurple); color: white; font-size: 18px; margin-top: 25px;
+            width: 100%; padding: 20px; border-radius: 12px; border: none; 
+            font-weight: 800; cursor: pointer; transition: var(--transition);
+            background: var(--blurple); color: white; font-size: 18px; margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
         }
-        .btn-send:hover { background: var(--blurple-hover); }
+        .btn-send:hover { background: var(--blurple-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4); }
+        .btn-send:active { transform: translateY(0); }
         
-        #toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; border-radius: 4px; color: white; transform: translateY(100px); transition: 0.3s; font-weight: bold; z-index: 1000; }
-        #toast.show { transform: translateY(0); }
+        #toast { position: fixed; bottom: 30px; right: 30px; padding: 14px 24px; border-radius: 8px; color: white; transform: translateX(200%); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: bold; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        #toast.show { transform: translateX(0); }
     </style>
 </head>
 <body>
 
     <div class="sidebar" id="sidebar">
         <div class="save-icon" onclick="saveToVault()" title="Save Profile">+</div>
-        <div style="width: 32px; height: 1px; background: #4e5058; margin: 5px 0;"></div>
+        <div style="width: 32px; height: 1px; background: #4e5058; margin: 4px 0;"></div>
         <div id="profileIcons"></div>
     </div>
 
@@ -97,54 +141,66 @@
         <div class="workspace">
             <div class="card">
                 <span class="section-label">Target Hook</span>
-                <input type="text" id="webhookUrl" placeholder="Webhook URL">
-                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
+                
+                <div style="display: flex; gap: 15px; margin-top: 10px;">
                     <div style="flex: 1;">
-                        <span class="section-label">Bot Name</span>
-                        <input type="text" id="botName" placeholder="Bot Name" oninput="updateUI()">
+                        <span class="section-label">Identity Name</span>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <input type="text" id="botName" placeholder="Bot Name" oninput="updateUI()" style="margin-bottom:0;">
+                            <button class="btn-fancy" onclick="makeFancy()">Fancy</button>
+                        </div>
                     </div>
                     <div style="flex: 1;">
                         <span class="section-label">Avatar URL</span>
-                        <input type="text" id="botAvatar" placeholder="Avatar URL" oninput="updateUI()">
+                        <input type="text" id="botAvatar" placeholder="Image link..." oninput="updateUI()">
                     </div>
                 </div>
             </div>
 
             <div class="editor-wrap">
                 <div class="toolbar">
-                    <button onclick="exec('bold')"><b>B</b></button>
-                    <button onclick="exec('italic')"><i>I</i></button>
-                    <button onclick="exec('underline')"><u>U</u></button>
-                    <button onclick="exec('strikeThrough')"><s>S</s></button>
+                    <button onclick="exec('bold')" title="Bold"><b>B</b></button>
+                    <button onclick="exec('italic')" title="Italic"><i>I</i></button>
+                    <button onclick="exec('underline')" title="Underline"><u>U</u></button>
+                    <button onclick="exec('strikeThrough')" title="Strikethrough"><s>S</s></button>
                     <div class="sep"></div>
                     <button onclick="exec('formatBlock', 'h1')">H1</button>
                     <button onclick="exec('formatBlock', 'h2')">H2</button>
                     <button onclick="exec('formatBlock', 'h3')">H3</button>
                     <div class="sep"></div>
-                    <button onclick="exec('formatBlock', 'blockquote')">Quote</button>
-                    <button onclick="applyCode()">Code</button>
-                    <button onclick="clearEditor()" style="margin-left:auto; color:var(--danger)">Wipe</button>
+                    <button onclick="exec('formatBlock', 'blockquote')">”</button>
+                    <button onclick="applyCode()" title="Code Block"><code>&lt;/&gt;</code></button>
+                    <button onclick="document.getElementById('fileInput').click()" title="Attach Files">📎</button>
+                    <button onclick="clearEditor()" style="margin-left:auto; color:var(--danger)" title="Clear Everything">Wipe</button>
                 </div>
-                <div id="editor" contenteditable="true" oninput="updateUI()"></div>
+                <div id="editor" contenteditable="true" oninput="updateUI()" placeholder="Type your message here..."></div>
+                <div id="attachmentList"></div>
+                <div class="editor-footer">
+                    <span id="charCount">0 / 2000</span>
+                    <span>Supports Discord Markdown</span>
+                </div>
+                <input type="file" id="fileInput" style="display:none" multiple onchange="handleFiles(this.files)">
             </div>
 
-            <span class="section-label">Preview</span>
+            <span class="section-label">Live Preview</span>
             <div class="discord-preview">
                 <div class="prev-pfp" id="prevPfp"></div>
-                <div class="discord-content">
-                    <div><span class="prev-name" id="prevName">Webhook</span><span class="prev-tag">APP</span></div>
-                    <div id="prevBody" style="white-space: pre-wrap;">...</div>
+                <div class="discord-content" style="flex:1">
+                    <div><span class="prev-name" id="prevName">Webhook</span><span class="prev-tag">APP</span><span style="color:var(--text-muted); font-size:12px; margin-left:8px;">Today at 12:00 PM</span></div>
+                    <div id="prevBody" style="white-space: pre-wrap; margin-top: 4px; word-break: break-word;"></div>
                 </div>
             </div>
 
-            <button class="btn-send" onclick="send()">SEND TO DISCORD</button>
+            <button class="btn-send" id="sendBtn" onclick="send()">SEND TO DISCORD</button>
         </div>
     </div>
 
     <div id="toast"></div>
 
     <script>
-        let profiles = JSON.parse(localStorage.getItem('wh_vault_final_v6') || '[]');
+        let profiles = JSON.parse(localStorage.getItem('wh_vault_pro_v1') || '[]');
+        let uploadedFiles = [];
 
         window.onload = () => {
             renderSidebar();
@@ -155,16 +211,64 @@
             updateUI();
         };
 
+        function makeFancy() {
+            const input = document.getElementById('botName');
+            const map = {
+                'a': '𝖺', 'b': '𝖻', 'c': '𝖼', 'd': '𝖽', 'e': '𝖾', 'f': '𝖿', 'g': '𝗀', 'h': '𝗁', 'i': '𝗂', 'j': '𝗃', 'k': '𝗄', 'l': '𝗅', 'm': '𝗆', 'n': '𝗇', 'o': '𝗈', 'p': '𝗉', 'q': '𝗊', 'r': '𝗋', 's': '𝗌', 't': '𝗍', 'u': '𝗎', 'v': '𝗏', 'w': '𝗐', 'x': '𝗑', 'y': '𝗒', 'z': '𝗓',
+                'A': '𝖠', 'B': '𝖡', 'C': '𝖢', 'D': '𝖣', 'E': '𝖤', 'F': '𝖥', 'G': '𝖦', 'H': '𝖧', 'I': '𝖨', 'J': '𝖩', 'K': '𝖪', 'L': '𝖫', 'M': '𝖬', 'N': '𝖭', 'O': '𝖮', 'P': '𝖯', 'Q': '𝖰', 'R': '𝖱', 'S': '𝖲', 'T': '𝖳', 'U': '𝖴', 'V': '𝖵', 'W': '𝖶', 'X': '𝖷', 'Y': '𝖸', 'Z': '𝖹'
+            };
+            input.value = input.value.split('').map(char => map[char] || char).join('');
+            updateUI();
+        }
+
         function updateUI() {
+            const name = document.getElementById('botName').value || 'Webhook';
             const pfp = document.getElementById('botAvatar').value || 'https://cdn.discordapp.com/embed/avatars/0.png';
-            document.getElementById('prevName').innerText = document.getElementById('botName').value || 'Webhook';
+            const editorBody = document.getElementById('editor').innerHTML;
+            
+            document.getElementById('prevName').innerText = name;
             document.getElementById('prevPfp').style.backgroundImage = `url('${pfp}')`;
-            document.getElementById('prevBody').innerHTML = document.getElementById('editor').innerHTML;
+            document.getElementById('prevBody').innerHTML = editorBody || '<span style="color:var(--text-muted)">...</span>';
+
+            // Character Count logic
+            const plainText = document.getElementById('editor').innerText;
+            const count = plainText.length;
+            const counterEl = document.getElementById('charCount');
+            counterEl.innerText = `${count} / 2000`;
+            counterEl.style.color = count > 2000 ? 'var(--danger)' : 'var(--text-muted)';
 
             localStorage.setItem('d_url', document.getElementById('webhookUrl').value);
             localStorage.setItem('d_name', document.getElementById('botName').value);
             localStorage.setItem('d_pfp', document.getElementById('botAvatar').value);
-            localStorage.setItem('d_msg', document.getElementById('editor').innerHTML);
+            localStorage.setItem('d_msg', editorBody);
+        }
+
+        function handleFiles(files) {
+            for (let file of files) {
+                const fileId = Math.random().toString(36).substr(2, 9);
+                uploadedFiles.push({ id: fileId, file: file });
+                
+                const card = document.createElement('div');
+                card.className = 'file-card';
+                card.id = `file-${fileId}`;
+                
+                // If it's an image, show a thumbnail
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => card.style.backgroundImage = `url('${e.target.result}')`;
+                    reader.readAsDataURL(file);
+                } else {
+                    card.innerHTML = `<div style="font-size:10px; padding:20px 5px; text-align:center; color:var(--text-muted)">DOC</div>`;
+                }
+
+                card.innerHTML += `<div class="remove-btn" onclick="removeFile('${fileId}')">✕</div>`;
+                document.getElementById('attachmentList').appendChild(card);
+            }
+        }
+
+        function removeFile(id) {
+            uploadedFiles = uploadedFiles.filter(f => f.id !== id);
+            document.getElementById(`file-${id}`).remove();
         }
 
         function exec(cmd, val = null) { document.execCommand(cmd, false, val); updateUI(); }
@@ -181,16 +285,25 @@
         }
 
         function clearEditor() {
-            if(confirm("Wipe editor?")) { document.getElementById('editor').innerHTML = ''; updateUI(); }
+            if(confirm("Wipe everything?")) { 
+                document.getElementById('editor').innerHTML = ''; 
+                document.getElementById('attachmentList').innerHTML = '';
+                uploadedFiles = [];
+                updateUI(); 
+            }
         }
 
         function saveToVault() {
             const url = document.getElementById('webhookUrl').value;
-            if(!url) return showToast("No URL!", false);
-            profiles.push({ url, name: document.getElementById('botName').value, pfp: document.getElementById('botAvatar').value });
-            localStorage.setItem('wh_vault_final_v6', JSON.stringify(profiles));
+            if(!url) return showToast("No URL to save!", false);
+            profiles.push({ 
+                url, 
+                name: document.getElementById('botName').value || "Unnamed", 
+                pfp: document.getElementById('botAvatar').value 
+            });
+            localStorage.setItem('wh_vault_pro_v1', JSON.stringify(profiles));
             renderSidebar();
-            showToast("Saved!");
+            showToast("Profile Saved!");
         }
 
         function renderSidebar() {
@@ -200,15 +313,22 @@
                 const icon = document.createElement('div');
                 icon.className = 'profile-icon';
                 icon.style.backgroundImage = `url('${p.pfp || 'https://cdn.discordapp.com/embed/avatars/1.png'}')`;
+                icon.setAttribute('data-name', p.name);
+                
                 icon.onclick = () => {
                     document.getElementById('webhookUrl').value = p.url;
                     document.getElementById('botName').value = p.name;
                     document.getElementById('botAvatar').value = p.pfp;
                     updateUI();
+                    showToast(`Loaded: ${p.name}`);
                 };
                 icon.oncontextmenu = (e) => {
                     e.preventDefault();
-                    if(confirm("Delete?")) { profiles.splice(i, 1); localStorage.setItem('wh_vault_final_v6', JSON.stringify(profiles)); renderSidebar(); }
+                    if(confirm(`Delete "${p.name}"?`)) { 
+                        profiles.splice(i, 1); 
+                        localStorage.setItem('wh_vault_pro_v1', JSON.stringify(profiles)); 
+                        renderSidebar(); 
+                    }
                 };
                 container.appendChild(icon);
             });
@@ -226,39 +346,62 @@
             const url = document.getElementById('webhookUrl').value;
             if(!url) return showToast("Missing URL!", false);
 
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = true;
+            btn.innerText = "SHRINKWRAPPING...";
+
             let html = document.getElementById('editor').innerHTML;
 
-            // SMART SHRINKWRAP: Moves spaces OUT of the tags so the symbols touch the letters
+            // ENHANCED SHRINKWRAP: SWAPS SPACES AND SYMBOLS
             let content = html
                 .replace(/<h1>\s*(.*?)\s*<\/h1>/g, "# $1\n")
                 .replace(/<h2>\s*(.*?)\s*<\/h2>/g, "## $1\n")
                 .replace(/<h3>\s*(.*?)\s*<\/h3>/g, "### $1\n")
-                // Pulls spaces outside the bold/italic markers
-                .replace(/<b>(\s*)(.*?)(\s*)<\/b>/g, "$1**$2**$3")
-                .replace(/<strong>(\s*)(.*?)(\s*)<\/strong>/g, "$1**$2**$3")
-                .replace(/<i>(\s*)(.*?)(\s*)<\/i>/g, "$1*$2*$3")
-                .replace(/<em>(\s*)(.*?)(\s*)<\/em>/g, "$1*$2*$3")
+                .replace(/<b>(\s*)(.*?)(\s*)<\/b>|<strong>(\s*)(.*?)(\s*)<\/strong>/g, "$1$4**$2$5**$3$6")
+                .replace(/<i>(\s*)(.*?)(\s*)<\/i>|<em>(\s*)(.*?)(\s*)<\/em>/g, "$1$4*$2$5*$3$6")
                 .replace(/<u>(\s*)(.*?)(\s*)<\/u>/g, "$1__$2__$3")
                 .replace(/<s>(\s*)(.*?)(\s*)<\/s>/g, "$1~~$2~~$3")
                 .replace(/<code>(\s*)(.*?)(\s*)<\/code>/g, "$1`$2`$3")
+                .replace(/<blockquote>\s*(.*?)\s*<\/blockquote>/g, "> $1\n")
                 .replace(/&nbsp;/g, " ")
                 .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
                 .replace(/<br>/g, "\n")
                 .replace(/<[^>]*>/g, "").trim();
 
+            if (!content && uploadedFiles.length === 0) {
+                btn.disabled = false;
+                btn.innerText = "SEND TO DISCORD";
+                return showToast("Nothing to send!", false);
+            }
+
+            const formData = new FormData();
+            formData.append('payload_json', JSON.stringify({
+                content: content,
+                username: document.getElementById('botName').value,
+                avatar_url: document.getElementById('botAvatar').value
+            }));
+
+            uploadedFiles.forEach((fObj, index) => {
+                formData.append(`file${index}`, fObj.file);
+            });
+
             try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        content: content,
-                        username: document.getElementById('botName').value,
-                        avatar_url: document.getElementById('botAvatar').value
-                    })
-                });
-                if(res.ok) { showToast("Sent!"); document.getElementById('editor').innerHTML = ''; updateUI(); }
-                else showToast("Error", false);
-            } catch(e) { showToast("Failed", false); }
+                const res = await fetch(url, { method: 'POST', body: formData });
+                if(res.ok) { 
+                    showToast("Message Dispatched!"); 
+                    document.getElementById('editor').innerHTML = ''; 
+                    document.getElementById('attachmentList').innerHTML = '';
+                    uploadedFiles = [];
+                    updateUI(); 
+                } else {
+                    showToast("Discord Error", false);
+                }
+            } catch(e) { 
+                showToast("Connection Failed", false); 
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "SEND TO DISCORD";
+            }
         }
     </script>
 </body>
