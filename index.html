@@ -15,109 +15,139 @@
             --text-muted: #949ba4;
             --discord-blurple: #5865f2;
             --discord-hover: #4752c4;
+            --danger: #da373c;
         }
 
         body {
-            font-family: 'gg sans', 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'gg sans', 'Segoe UI', sans-serif;
             background-color: var(--bg-main);
             color: var(--text-main);
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            padding: 40px 20px;
             margin: 0;
         }
 
+        .container { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 20px; }
+        
         .card {
             background: var(--bg-card);
-            padding: 32px;
+            padding: 24px;
             border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
 
-        label { display: block; font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); letter-spacing: 0.5px; }
+        h3 { margin-top: 0; color: white; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+        label { display: block; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
 
         input[type="text"] {
-            width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 4px;
-            border: 1px solid transparent; background: var(--bg-input); color: white; box-sizing: border-box; outline: none; transition: border 0.2s;
+            width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 4px;
+            border: 1px solid transparent; background: var(--bg-input); color: white; box-sizing: border-box; outline: none;
         }
-        input[type="text"]:focus { border-color: var(--discord-blurple); }
+        input:focus { border-color: var(--discord-blurple); }
 
+        /* Webhook Manager Styles */
+        .save-row { display: flex; gap: 8px; margin-bottom: 15px; }
+        .webhook-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; border-top: 1px solid #3f4147; padding-top: 15px; }
+        .webhook-chip {
+            background: #4e5058; padding: 6px 12px; border-radius: 15px; font-size: 13px;
+            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .webhook-chip:hover { background: var(--discord-blurple); }
+        .webhook-chip .del { color: var(--text-muted); font-weight: bold; cursor: pointer; }
+        .webhook-chip .del:hover { color: white; }
+
+        /* Editor Styles */
         .toolbar {
             display: flex; gap: 8px; background: #232428; padding: 10px;
-            border-radius: 8px 8px 0 0; align-items: center; flex-wrap: wrap;
+            border-radius: 8px 8px 0 0; align-items: center;
         }
-
         .toolbar button, .toolbar select {
-            background: #4e5058; color: white; border: none; padding: 6px 12px;
-            border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;
+            background: #4e5058; color: white; border: none; padding: 6px 10px;
+            border-radius: 4px; cursor: pointer; font-size: 13px;
         }
-
-        .toolbar button:hover { background: #6d6f78; }
-
         #editor { 
-            min-height: 160px; background: var(--bg-editor); padding: 16px;
+            min-height: 150px; background: var(--bg-editor); padding: 16px;
             border-radius: 0 0 8px 8px; outline: none; line-height: 1.6;
-            margin-bottom: 24px; font-size: 15px; border: 1px solid transparent;
-            overflow-y: auto;
+            margin-bottom: 15px; font-size: 15px;
         }
 
         .send-btn {
             background: var(--discord-blurple); color: white; width: 100%;
-            border: none; padding: 16px; border-radius: 4px; font-weight: bold;
-            cursor: pointer; font-size: 16px; transition: all 0.2s ease;
+            border: none; padding: 14px; border-radius: 4px; font-weight: bold;
+            cursor: pointer; font-size: 16px; transition: 0.2s;
         }
+        .send-btn:hover { background: var(--discord-hover); }
 
-        .send-btn:hover { background: var(--discord-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4); }
-
-        .guide {
-            display: flex; justify-content: space-between; margin-top: -15px; margin-bottom: 20px;
-            font-size: 11px; color: var(--text-muted);
-        }
-
-        /* Editor Preview Styles */
-        h1 { font-size: 1.8em; margin: 0.2em 0; border-bottom: 1px solid #4e5058; }
-        h2 { font-size: 1.4em; margin: 0.2em 0; }
+        .hint { font-size: 11px; color: var(--text-muted); text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2 style="color:white; margin-top:0; margin-bottom: 20px;">Webhook Portal</h2>
-    
-    <label>Webhook URL</label>
-    <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
-    
-    <label>Message Content</label>
-    <div class="toolbar">
-        <button title="Bold" onclick="exec('bold')"><b>B</b></button>
-        <button title="Italic" onclick="exec('italic')"><i>I</i></button>
-        <button title="Underline" onclick="exec('underline')"><u>U</u></button>
-        <button title="Strikethrough" onclick="exec('strikeThrough')"><s>S</s></button>
-        
-        <select title="Text Size" onchange="exec('formatBlock', this.value); this.selectedIndex=0;">
-            <option value="">Size</option>
-            <option value="h1">Big</option>
-            <option value="h2">Medium</option>
-            <option value="p">Small</option>
-        </select>
-    </div>
-    
-    <div id="editor" contenteditable="true"></div>
-    
-    <div class="guide">
-        <span><b>User Ping:</b> @@ID@@</span>
-        <span><b>Role Ping:</b> @ID@</span>
+<div class="container">
+    <div class="card">
+        <h3>🔗 Webhook Manager</h3>
+        <div class="save-row">
+            <input type="text" id="nickName" placeholder="Name (e.g. Staff Logs)" style="flex: 1; margin: 0;">
+            <input type="text" id="webhookUrl" placeholder="Paste Webhook URL here..." style="flex: 2; margin: 0;">
+            <button onclick="saveWebhook()" style="background: var(--discord-blurple); color: white; border: none; padding: 0 15px; border-radius: 4px; cursor: pointer;">Save</button>
+        </div>
+        <div class="webhook-list" id="webhookList">
+            </div>
     </div>
 
-    <button class="send-btn" onclick="sendToDiscord()">Send to Discord</button>
+    <div class="card">
+        <h3>📝 Message</h3>
+        <div class="toolbar">
+            <button onclick="exec('bold')"><b>B</b></button>
+            <button onclick="exec('italic')"><i>I</i></button>
+            <button onclick="exec('underline')"><u>U</u></button>
+            <button onclick="exec('strikeThrough')"><s>S</s></button>
+            <select onchange="exec('formatBlock', this.value); this.selectedIndex=0;">
+                <option value="">Size</option>
+                <option value="h1">Big</option>
+                <option value="h2">Medium</option>
+                <option value="p">Small</option>
+            </select>
+        </div>
+        <div id="editor" contenteditable="true"></div>
+        <p class="hint">@@ID@@ = User Ping | @ID@ = Role Ping</p>
+        <button class="send-btn" onclick="sendToDiscord()">Send Message</button>
+    </div>
 </div>
 
 <script>
-    function exec(cmd, val = null) {
-        document.execCommand(cmd, false, val);
+    let savedHooks = JSON.parse(localStorage.getItem('discordHooks') || '[]');
+
+    function exec(cmd, val = null) { document.execCommand(cmd, false, val); }
+
+    function renderHooks() {
+        const list = document.getElementById('webhookList');
+        list.innerHTML = savedHooks.length ? '' : '<span style="color:var(--text-muted); font-size:12px;">No saved webhooks.</span>';
+        savedHooks.forEach((hook, index) => {
+            const chip = document.createElement('div');
+            chip.className = 'webhook-chip';
+            chip.innerHTML = `<span onclick="loadHook('${hook.url}')">${hook.name}</span> <span class="del" onclick="deleteHook(${index})">×</span>`;
+            list.appendChild(chip);
+        });
+    }
+
+    function saveWebhook() {
+        const name = document.getElementById('nickName').value;
+        const url = document.getElementById('webhookUrl').value;
+        if (!name || !url) return alert("Enter both name and URL");
+        savedHooks.push({ name, url });
+        localStorage.setItem('discordHooks', JSON.stringify(savedHooks));
+        renderHooks();
+        document.getElementById('nickName').value = '';
+    }
+
+    function loadHook(url) { document.getElementById('webhookUrl').value = url; }
+
+    function deleteHook(index) {
+        savedHooks.splice(index, 1);
+        localStorage.setItem('discordHooks', JSON.stringify(savedHooks));
+        renderHooks();
     }
 
     async function sendToDiscord() {
@@ -125,28 +155,20 @@
         const editor = document.getElementById('editor');
 
         let content = editor.innerHTML
-            // Headers (Big/Medium)
             .replace(/<h1>(.*?)<\/h1>/g, "# $1\n")
             .replace(/<h2>(.*?)<\/h2>/g, "## $1\n")
-            // Formatting
             .replace(/<b>(.*?)<\/b>|<strong>(.*?)<\/strong>/g, "**$1$2**")
             .replace(/<i>(.*?)<\/i>|<em>(.*?)<\/em>/g, "*$1$2*")
             .replace(/<u>(.*?)<\/u>/g, "__$1__")
             .replace(/<s>(.*?)<\/s>|<strike>(.*?)<\/strike>/g, "~~$1$2~~")
-            
-            // --- NEW PING LOGIC ---
-            // User Ping: @@ID@@ -> <@ID>
-            .replace(/@@(\d+)@@/g, "<@$1>")
-            // Role Ping: @ID@ -> <@&ID>
-            .replace(/@(\d+)@/g, "<@&$1>")
-            
-            // Cleanup
+            .replace(/@@(\d+)@@/g, "<@$1>") // User Ping
+            .replace(/@(\d+)@/g, "<@&$1>")  // Role Ping
             .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
             .replace(/<br>/g, "\n")
             .replace(/&nbsp;/g, " ")
             .replace(/<[^>]*>/g, ""); 
 
-        if (!url || !content.trim()) return alert("Please fill in the URL and Message.");
+        if (!url || !content.trim()) return alert("Select a webhook and type a message!");
 
         try {
             const res = await fetch(url, {
@@ -154,16 +176,12 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: content })
             });
-            if (res.ok) { 
-                alert("Success!"); 
-                editor.innerHTML = ""; 
-            } else { 
-                alert("Error: Webhook refused the message."); 
-            }
-        } catch (e) { 
-            alert("Connection error."); 
-        }
+            if (res.ok) { alert("Sent!"); editor.innerHTML = ""; }
+            else { alert("Failed to send."); }
+        } catch (e) { alert("Network error."); }
     }
+
+    renderHooks();
 </script>
 
 </body>
