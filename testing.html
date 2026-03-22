@@ -27,7 +27,6 @@
             margin: 0; display: flex; height: 100vh; overflow: hidden;
         }
 
-        /* Sidebar: Icon Vault */
         .sidebar { 
             width: 72px; background: var(--bg-darker); display: flex; flex-direction: column; 
             align-items: center; padding: 12px 0; gap: 8px; border-right: 1px solid var(--border);
@@ -47,7 +46,6 @@
         }
         .save-icon:hover { background: var(--success); color: white; border-radius: 30%; }
 
-        /* Main Workspace */
         .main { flex: 1; background: var(--bg-main); overflow-y: auto; padding: 20px; }
         .workspace { max-width: 850px; margin: 0 auto; padding-bottom: 50px; }
 
@@ -60,21 +58,16 @@
         }
         input:focus { border-color: var(--blurple); }
 
-        /* Editor */
         .editor-wrap { background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 15px; }
         .toolbar { background: #2b2d31; padding: 8px; display: flex; gap: 4px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
         .toolbar button { background: transparent; border: none; color: var(--text-normal); cursor: pointer; font-size: 14px; padding: 5px 10px; border-radius: 3px; }
         .toolbar button:hover { background: #4e5058; color: white; }
         .toolbar .sep { width: 1px; height: 20px; background: #4e5058; margin: 0 5px; align-self: center; }
 
-        #editor { min-height: 200px; padding: 20px; outline: none; line-height: 1.6; background: #383a40; font-size: 15px; }
-        #editor h1 { font-size: 24px; margin: 10px 0; font-weight: bold; }
-        #editor h2 { font-size: 20px; margin: 8px 0; font-weight: bold; }
-        #editor h3 { font-size: 16px; margin: 5px 0; font-weight: bold; }
-        #editor blockquote { border-left: 4px solid #4e5058; padding-left: 10px; color: var(--text-muted); margin: 10px 0; }
-        #editor code { background: #232428; padding: 2px 4px; border-radius: 4px; font-family: monospace; }
+        #editor { min-height: 200px; padding: 20px; outline: none; line-height: 1.6; background: #383a40; font-size: 15px; color: white; }
+        #editor b { font-weight: bold; }
+        #editor i { font-style: italic; }
 
-        /* Preview */
         .discord-preview { 
             background: #2b2d31; padding: 15px; border-radius: 8px; display: flex; gap: 14px; 
             border: 1px solid var(--border); margin-top: 10px;
@@ -83,15 +76,12 @@
         .prev-name { font-weight: 600; color: white; }
         .prev-tag { background: var(--blurple); font-size: 10px; padding: 1px 4px; border-radius: 3px; color: white; font-weight: bold; margin-left: 5px; }
 
-        /* Bottom Send Button */
         .btn-send { 
             width: 100%; padding: 18px; border-radius: 8px; border: none; 
             font-weight: bold; cursor: pointer; transition: 0.2s;
             background: var(--blurple); color: white; font-size: 18px; margin-top: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .btn-send:hover { background: var(--blurple-hover); transform: translateY(-1px); }
-        .btn-send:active { transform: translateY(0); }
+        .btn-send:hover { background: var(--blurple-hover); }
         
         #toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; border-radius: 4px; color: white; transform: translateY(100px); transition: 0.3s; font-weight: bold; z-index: 1000; }
         #toast.show { transform: translateY(0); }
@@ -100,7 +90,7 @@
 <body>
 
     <div class="sidebar" id="sidebar">
-        <div class="save-icon" onclick="saveToVault()" title="Save current settings to Sidebar">+</div>
+        <div class="save-icon" onclick="saveToVault()" title="Save Profile">+</div>
         <div style="width: 32px; height: 1px; background: #4e5058; margin: 5px 0;"></div>
         <div id="profileIcons"></div>
     </div>
@@ -109,16 +99,15 @@
         <div class="workspace">
             <div class="card">
                 <span class="section-label">Target Hook</span>
-                <input type="text" id="webhookUrl" placeholder="Paste Webhook URL here...">
-                
+                <input type="text" id="webhookUrl" placeholder="Webhook URL">
                 <div style="display: flex; gap: 10px; margin-top: 5px;">
                     <div style="flex: 1;">
-                        <span class="section-label">Identity Name</span>
-                        <input type="text" id="botName" placeholder="Default Webhook Name" oninput="updateUI()">
+                        <span class="section-label">Bot Name</span>
+                        <input type="text" id="botName" placeholder="Bot Name" oninput="updateUI()">
                     </div>
                     <div style="flex: 1;">
                         <span class="section-label">Avatar URL</span>
-                        <input type="text" id="botAvatar" placeholder="https://i.imgur.com/example.png" oninput="updateUI()">
+                        <input type="text" id="botAvatar" placeholder="Avatar URL" oninput="updateUI()">
                     </div>
                 </div>
             </div>
@@ -136,21 +125,17 @@
                     <div class="sep"></div>
                     <button onclick="exec('formatBlock', 'blockquote')">Quote</button>
                     <button onclick="applyCode()">Code</button>
-                    <button onclick="clearEditor()" title="Clear Editor" style="margin-left:auto; color:var(--danger)">Wipe</button>
+                    <button onclick="clearEditor()" style="margin-left:auto; color:var(--danger)">Wipe</button>
                 </div>
                 <div id="editor" contenteditable="true" oninput="updateUI()"></div>
             </div>
 
-            <span class="section-label">Message Preview</span>
+            <span class="section-label">Preview</span>
             <div class="discord-preview">
                 <div class="prev-pfp" id="prevPfp"></div>
                 <div class="discord-content">
-                    <div>
-                        <span class="prev-name" id="prevName">Webhook</span>
-                        <span class="prev-tag">APP</span>
-                        <span style="color: var(--text-muted); font-size: 12px; margin-left: 8px;">Today at 11:56 PM</span>
-                    </div>
-                    <div id="prevBody" style="white-space: pre-wrap; color: #dbdee1;">...</div>
+                    <div><span class="prev-name" id="prevName">Webhook</span><span class="prev-tag">APP</span></div>
+                    <div id="prevBody">...</div>
                 </div>
             </div>
 
@@ -161,11 +146,10 @@
     <div id="toast"></div>
 
     <script>
-        let profiles = JSON.parse(localStorage.getItem('wh_vault_final') || '[]');
+        let profiles = JSON.parse(localStorage.getItem('wh_vault_final_v5') || '[]');
 
         window.onload = () => {
             renderSidebar();
-            // Load Last Session Drafts
             document.getElementById('webhookUrl').value = localStorage.getItem('d_url') || '';
             document.getElementById('botName').value = localStorage.getItem('d_name') || '';
             document.getElementById('botAvatar').value = localStorage.getItem('d_pfp') || '';
@@ -174,12 +158,10 @@
         };
 
         function updateUI() {
-            const name = document.getElementById('botName').value || 'Webhook';
             const pfp = document.getElementById('botAvatar').value || 'https://cdn.discordapp.com/embed/avatars/0.png';
-            
-            document.getElementById('prevName').innerText = name;
+            document.getElementById('prevName').innerText = document.getElementById('botName').value || 'Webhook';
             document.getElementById('prevPfp').style.backgroundImage = `url('${pfp}')`;
-            document.getElementById('prevBody').innerHTML = document.getElementById('editor').innerHTML || '...';
+            document.getElementById('prevBody').innerHTML = document.getElementById('editor').innerHTML;
 
             localStorage.setItem('d_url', document.getElementById('webhookUrl').value);
             localStorage.setItem('d_name', document.getElementById('botName').value);
@@ -187,14 +169,11 @@
             localStorage.setItem('d_msg', document.getElementById('editor').innerHTML);
         }
 
-        function exec(cmd, val = null) { 
-            document.execCommand(cmd, false, val); 
-            updateUI(); 
-        }
+        function exec(cmd, val = null) { document.execCommand(cmd, false, val); updateUI(); }
 
         function applyCode() {
             const sel = window.getSelection();
-            if (sel.toString().length === 0) return;
+            if (!sel.toString()) return;
             const el = document.createElement("code");
             el.textContent = sel.toString();
             const range = sel.getRangeAt(0);
@@ -204,23 +183,16 @@
         }
 
         function clearEditor() {
-            if(confirm("Wipe all message content?")) {
-                document.getElementById('editor').innerHTML = '';
-                updateUI();
-            }
+            if(confirm("Wipe editor?")) { document.getElementById('editor').innerHTML = ''; updateUI(); }
         }
 
         function saveToVault() {
             const url = document.getElementById('webhookUrl').value;
-            const name = document.getElementById('botName').value;
-            const pfp = document.getElementById('botAvatar').value;
-
-            if(!url) return showToast("No URL entered to save!", false);
-
-            profiles.push({ url, name, pfp });
-            localStorage.setItem('wh_vault_final', JSON.stringify(profiles));
+            if(!url) return showToast("No URL!", false);
+            profiles.push({ url, name: document.getElementById('botName').value, pfp: document.getElementById('botAvatar').value });
+            localStorage.setItem('wh_vault_final_v5', JSON.stringify(profiles));
             renderSidebar();
-            showToast("Profile added to Sidebar!");
+            showToast("Saved!");
         }
 
         function renderSidebar() {
@@ -230,23 +202,15 @@
                 const icon = document.createElement('div');
                 icon.className = 'profile-icon';
                 icon.style.backgroundImage = `url('${p.pfp || 'https://cdn.discordapp.com/embed/avatars/1.png'}')`;
-                icon.title = p.name || "Webhook Profile";
-                
                 icon.onclick = () => {
                     document.getElementById('webhookUrl').value = p.url;
                     document.getElementById('botName').value = p.name;
                     document.getElementById('botAvatar').value = p.pfp;
                     updateUI();
-                    showToast(`Loaded: ${p.name || 'Webhook'}`);
                 };
-
                 icon.oncontextmenu = (e) => {
                     e.preventDefault();
-                    if(confirm("Delete this saved profile?")) {
-                        profiles.splice(i, 1);
-                        localStorage.setItem('wh_vault_final', JSON.stringify(profiles));
-                        renderSidebar();
-                    }
+                    if(confirm("Delete?")) { profiles.splice(i, 1); localStorage.setItem('wh_vault_final_v5', JSON.stringify(profiles)); renderSidebar(); }
                 };
                 container.appendChild(icon);
             });
@@ -262,37 +226,25 @@
 
         async function send() {
             const url = document.getElementById('webhookUrl').value;
-            if(!url) return showToast("Missing Webhook URL!", false);
+            if(!url) return showToast("Missing URL!", false);
 
-            const btn = document.querySelector('.btn-send');
-            btn.disabled = true;
-            btn.innerText = "SHRINKWRAPPING & SENDING...";
+            let html = document.getElementById('editor').innerHTML;
 
-            // "Shrinkwrap" Cleaner: Converts HTML to clean Discord Markdown and strips symbols like &nbsp;
-            let content = document.getElementById('editor').innerHTML
-                .replace(/<h1>(.*?)<\/h1>/g, "# $1\n")
-                .replace(/<h2>(.*?)<\/h2>/g, "## $1\n")
-                .replace(/<h3>(.*?)<\/h3>/g, "### $1\n")
-                .replace(/<b>(.*?)<\/b>|<strong>(.*?)<\/strong>/g, "**$1$2**")
-                .replace(/<i>(.*?)<\/i>|<em>(.*?)<\/em>/g, "*$1$2*")
-                .replace(/<u>(.*?)<\/u>/g, "__$1__")
-                .replace(/<s>(.*?)<\/s>|<strike>(.*?)<\/strike>/g, "~~$1$2~~")
-                .replace(/<code>(.*?)<\/code>/g, "`$1`")
-                .replace(/<blockquote>(.*?)<\/blockquote>/g, "> $1\n")
+            // SHRINKWRAP CLEANER: Move formatting symbols inward to touch text
+            // 1. Convert tags to markdown placeholders with inward-trimming
+            let content = html
+                .replace(/<h1>\s*(.*?)\s*<\/h1>/g, "# $1\n")
+                .replace(/<h2>\s*(.*?)\s*<\/h2>/g, "## $1\n")
+                .replace(/<h3>\s*(.*?)\s*<\/h3>/g, "### $1\n")
+                .replace(/<b>\s*(.*?)\s*<\/b>|<strong>\s*(.*?)\s*<\/strong>/g, "**$1$2**")
+                .replace(/<i>\s*(.*?)\s*<\/i>|<em>\s*(.*?)\s*<\/em>/g, "*$1$2*")
+                .replace(/<u>\s*(.*?)\s*<\/u>/g, "__$1__")
+                .replace(/<s>\s*(.*?)\s*<\/s>/g, "~~$1~~")
+                .replace(/<code>\s*(.*?)\s*<\/code>/g, "`$1`")
                 .replace(/&nbsp;/g, " ")
-                .replace(/&amp;/g, "&")
-                .replace(/&lt;/g, "<")
-                .replace(/&gt;/g, ">")
-                .replace(/&quot;/g, '"')
                 .replace(/<div>/g, "\n").replace(/<\/div>/g, "")
                 .replace(/<br>/g, "\n")
                 .replace(/<[^>]*>/g, "").trim();
-
-            if (!content) {
-                btn.disabled = false;
-                btn.innerText = "SEND TO DISCORD";
-                return showToast("Message is empty!", false);
-            }
 
             try {
                 const res = await fetch(url, {
@@ -304,19 +256,9 @@
                         avatar_url: document.getElementById('botAvatar').value
                     })
                 });
-                if(res.ok) {
-                    showToast("Message Sent!");
-                    document.getElementById('editor').innerHTML = '';
-                    updateUI();
-                } else { 
-                    showToast("Discord Error - Check URL/PFP", false); 
-                }
-            } catch(e) { 
-                showToast("Connection failed", false); 
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "SEND TO DISCORD";
-            }
+                if(res.ok) { showToast("Sent!"); document.getElementById('editor').innerHTML = ''; updateUI(); }
+                else showToast("Error", false);
+            } catch(e) { showToast("Failed", false); }
         }
     </script>
 </body>
