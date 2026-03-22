@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Webhook Sender</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #36393f; color: white; }
+        .container { max-width: 600px; margin: auto; }
+        #editor { 
+            border: 1px solid #4f545c; 
+            padding: 10px; 
+            min-height: 150px; 
+            background: #40444b; 
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        input, button { 
+            width: 100%; 
+            padding: 10px; 
+            margin-bottom: 10px; 
+            border-radius: 5px; 
+            border: none; 
+        }
+        button { background-color: #5865f2; color: white; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #4752c4; }
+        .toolbar { margin-bottom: 5px; }
+        .toolbar button { width: auto; padding: 5px 10px; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Send Discord Message</h2>
+    <input type="text" id="webhookUrl" placeholder="Enter Discord Webhook URL">
+    
+    <div class="toolbar">
+        <button onclick="execCmd('bold')"><b>B</b></button>
+        <button onclick="execCmd('italic')"><i>I</i></button>
+    </div>
+    
+    <div id="editor" contenteditable="true"></div>
+
+    <button onclick="sendMessage()">Send to Discord</button>
+</div>
+
+<script>
+    // Formatting functions
+    function execCmd(command) {
+        document.execCommand(command, false, null);
+    }
+
+    async function sendMessage() {
+        const url = document.getElementById('webhookUrl').value;
+        const editor = document.getElementById('editor');
+        
+        // Simple conversion: Discord uses Markdown, not HTML.
+        // For a true "rich text" to Markdown converter, libraries like Turndown are better.
+        // This basic version sends the text content.
+        let content = editor.innerText;
+
+        if (!url) {
+            alert("Please enter a Webhook URL");
+            return;
+        }
+
+        const payload = { content: content };
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                alert("Message sent!");
+                editor.innerHTML = ""; 
+            } else {
+                alert("Error sending message. Check your URL.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Connection failed.");
+        }
+    }
+</script>
+
+</body>
+</html>
